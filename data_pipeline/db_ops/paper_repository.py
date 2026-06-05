@@ -138,6 +138,105 @@ def upsert_paper(paper_data: dict, source: str, category: str = None):
 
     print("[red]One record processed!")
 
+def _merge_cite_numbers(old_list, new_list):
+    """合并带时间戳的引用快照列表（["<count>@<YYYY.MM.DD>", ...]）。
+
+    - 同一天的快照用新值替换旧值；
+    - 不同天的新快照追加到末尾；
+    使重复运行幂等地累积引用历史，而不是覆盖或重复。
+    """
+    combined = list(old_list or [])
+    for snap in (new_list or []):
+        if not isinstance(snap, str):
+            continue
+        date = snap.split("@")[-1] if "@" in snap else None
+        existing_dates = {s.split("@")[-1] for s in combined if isinstance(s, str) and "@" in s}
+        if date is not None and date in existing_dates:
+            combined = [s for s in combined
+                        if not (isinstance(s, str) and s.split("@")[-1] == date)] + [snap]
+        elif snap not in combined:
+            combined.append(snap)
+    return combined
+
+
+def upsert_openreview_paper(paper_data: dict, venue: str):
+    """upsert 一篇来自 OpenReview 的论文。
+
+    与 arXiv 的 upsert_paper 相互独立，专门处理「跨源合并」：
+    - 全新论文：直接插入；
+    - 已存在论文（可能先来自 arXiv）：用 merge_missing_fields 只补全空缺/缺失字段
+      （以点路径方式合并嵌套 dict，因此**不会**用空值覆盖已有的 arxiv_obj / base_urls）；
+      并强制把 accepted_by 覆盖为会议名（会议优先于 arXiv），同时把 cite_numbers 以
+      时间戳快照的方式幂等累积，最后 $addToSet 记录来源、$push 一条 edit_log。
+
+    :param paper_data: 单篇论文的字典（来自 record_to_paper_data，已映射为 schema）
+    :param venue: 会议来源，例如 "ICLR 2026"
+    """
+    papers = MongoDBClient.get_collection()
+
+    # 浅拷贝，避免改动调用方的对象；剥离瞬时键与会与 $addToSet/$push 冲突的字段
+    paper_data = dict(paper_data)
+    paper_data.pop("_openreview_record", None)
+    paper_data.pop("seen_in_categories", None)
+    paper_data.pop("seen_in_sources", None)
+    paper_data.pop("edit_logs", None)
+
+    new_cites = paper_data.get("cite_numbers") or []
+
+    doc = papers.find_one({"_id": paper_data["_id"]})
+
+    if doc is None:
+        # 全新论文
+        edit_log = {
+            "time": now_beijing_iso(),
+            "op": f"insert from {venue}",
+            "detail": "insert paper metadata (OpenReview)"
+        }
+        update_dict = {
+            "$set": paper_data,
+            "$setOnInsert": {"_schema_version": CURRENT_SCHEMA_VERSION},
+            "$addToSet": {"seen_in_sources": venue},
+            "$push": {"edit_logs": edit_log}
+        }
+        papers.update_one({"_id": paper_data["_id"]}, update_dict, upsert=True)
+        print(f"✅ Inserted new paper (OpenReview): {paper_data['_id']}")
+    else:
+        # 已存在：只补全空缺字段（点路径），不覆盖已有的非空字段
+        patch = merge_missing_fields(doc, paper_data)
+
+        # accepted_by：会议覆盖 arXiv（即使旧值非空也要覆盖）
+        if venue:
+            patch["accepted_by"] = venue
+
+        # cite_numbers：幂等累积时间戳快照（覆盖 merge_missing_fields 可能产生的版本）
+        merged_cites = _merge_cite_numbers(doc.get("cite_numbers"), new_cites)
+        if merged_cites != (doc.get("cite_numbers") or []):
+            patch["cite_numbers"] = merged_cites
+        else:
+            patch.pop("cite_numbers", None)
+
+        edit_log = {
+            "time": now_beijing_iso(),
+            "op": f"update from {venue}",
+            "detail": (f"fields updated: {sorted(patch.keys())}" if patch
+                       else "no richer info")
+        }
+        update_ops = {
+            "$addToSet": {"seen_in_sources": venue},
+            "$push": {"edit_logs": edit_log},
+        }
+        if patch:
+            update_ops["$set"] = patch
+
+        papers.update_one({"_id": paper_data["_id"]}, update_ops)
+        if patch:
+            print(f"🩹 Merged OpenReview paper: {paper_data['_id']} -> {sorted(patch.keys())}")
+        else:
+            print(f"♻️ OpenReview paper already up to date: {paper_data['_id']}")
+
+    print("[red]One record processed!")
+
+
 # 修改了 session 的 schema migration 方法
 def migrate_schema():
     """

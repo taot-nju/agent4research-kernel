@@ -24,7 +24,7 @@ Agent4Research Kernel 的长期目标是构建一个面向科研场景的论文�
 
 ## 2. 当前已实现功能
 
-当前版本已经实现了 arXiv 数据采集与 MongoDB 入库主链路。
+当前版本已经实现了 arXiv 数据采集与 MongoDB 入库主链路，并接入了 OpenReview（会议）数据采集与多源富化主链路。
 
 ### 2.1 MongoDB 数据库支持
 
@@ -123,6 +123,43 @@ data_pipeline/db_ops/paper_repository.py
 
 ---
 
+### 2.5 OpenReview 爬取（会议论文）
+
+本功能移植自 `openreview-paper-portrait`，把其完整的抓取/富化引擎接入本仓库的
+「Crawler → Pipeline → db_ops → MongoDB」架构，作为一等的 OpenReview 数据源。
+
+已支持：
+
+* 兼容 OpenReview v2（api2.openreview.net）与 v1（api.openreview.net），按 venue 自动探测可用版本；
+* 按 venue 抓取（`accepted` / `all` / `withdrawn,rejected,...`），偏移分页 + 重试退避，避免漏抓；
+* 把每条 note 映射为统一 schema，写入新增的 `openreview_obj` 字段；
+* `_id` 复用「标题规范化 SHA1」，因此与 arXiv 天然去重：同一篇论文若先来自 arXiv、
+  后被会议接收，会落到同一条记录上（`accepted_by` 由 arXiv 覆盖为会议名，且**不会**覆盖已有的 `arxiv_obj`）；
+* 多源富化，均可选、独立、可降级：
+  * arXiv：按标题匹配 arXiv id / URL / 首末版本日期；
+  * Semantic Scholar：引用数 + DOI（按 arXiv id 批量，或按标题回退）；
+  * Papers-with-Code：官方 GitHub 仓库；
+  * OpenAlex：多时间戳引用历史（`cite_numbers` 写入 `["<count>@<YYYY.MM.DD>", ...]`）；
+  * 作者画像：主页 + 论文发表当年的单位；
+  * LLM 抽取：通读 PDF 抽取 Baselines / Benchmarks / Metrics（标记 `auto_extracted`，多 provider：
+    claude-cli / anthropic / openai / deepseek / openrouter）；
+* 可选额外输出 Obsidian Markdown「论文画像」（vault），主存储仍是 MongoDB；
+* 重复爬取幂等：不重复插入，只补全空字段、累积 `cite_numbers` 时间戳快照、追加 `edit_logs`；
+* 各外部源磁盘缓存（`<vault>/.cache/`），重复运行更快、对网络抖动更鲁棒。
+
+相关模块：
+
+```text
+data_pipeline/source_configs/openreview_config.py
+data_pipeline/crawlers/openreview/            # 移植并模块化的抓取/富化引擎
+data_pipeline/crawlers/openreview_crawler.py  # OpenReviewCrawler + record_to_paper_data 映射
+data_pipeline/pipelines/openreview_venue.py
+data_pipeline/scripts_py/crawl_openreview.py
+data_pipeline/db_ops/paper_repository.py      # 新增 upsert_openreview_paper（跨源合并，不覆盖 arxiv_obj）
+```
+
+---
+
 ## 3. 项目结构
 
 当前项目结构如下：
@@ -132,10 +169,20 @@ agent4research-kernel/
 ├── data_pipeline/
 │   ├── crawlers/
 │   │   ├── arxiv_crawler.py
+│   │   ├── openreview_crawler.py        # OpenReviewCrawler + record_to_paper_data 映射
+│   │   ├── openreview/                  # 移植并模块化的 OpenReview 抓取/富化引擎
+│   │   │   ├── helpers.py               # Throttle / JsonCache / 重试 / 文本规范化 / cval
+│   │   │   ├── source.py                # OpenReviewSource（v1/v2）+ ProfileResolver
+│   │   │   ├── enrichment.py            # arXiv / S2 / Papers-with-Code / OpenAlex
+│   │   │   ├── llm_extract.py           # 多 provider LLM 抽取
+│   │   │   ├── record.py                # PaperRecord + build_base_record + apply_*
+│   │   │   ├── vault_writer.py          # 可选 Markdown 论文画像输出
+│   │   │   ├── collect.py               # collect_records（连接→抓取→富化，不写盘）
+│   │   │   └── __init__.py
 │   │   ├── base.py
 │   │   └── __init__.py
 │   ├── db_ops/
-│   │   ├── paper_repository.py
+│   │   ├── paper_repository.py          # upsert_paper（arXiv）+ upsert_openreview_paper（会议）
 │   │   └── __init__.py
 │   ├── db_settings/
 │   │   ├── init_indexes.py
@@ -144,18 +191,21 @@ agent4research-kernel/
 │   │   └── __init__.py
 │   ├── pipelines/
 │   │   ├── arxiv_daily.py
+│   │   ├── openreview_venue.py
 │   │   └── __init__.py
 │   ├── schemas/
 │   │   ├── paper_schema.py
 │   │   └── __init__.py
 │   ├── scripts_py/
 │   │   ├── crawl_arxiv_daily.py
+│   │   ├── crawl_openreview.py
 │   │   ├── init_db.py
 │   │   ├── migrate_schema.py
 │   │   └── __init__.py
 │   ├── source_configs/
 │   │   ├── arxiv_spec_config.py
 │   │   ├── conference_gen_config.py
+│   │   ├── openreview_config.py
 │   │   └── __init__.py
 │   ├── utils/
 │   │   ├── text_utils.py
@@ -166,6 +216,7 @@ agent4research-kernel/
 │   ├── 1_init_database.md
 │   ├── 2_migrate_schema.md
 │   ├── 3_crawl_arxiv_daily.md
+│   ├── 4_crawl_openreview.md
 │   └── __init__.py
 ├── __init__.py
 ├── requirements.txt
@@ -248,8 +299,12 @@ python -m ai4research.data_pipeline.scripts_py.migrate_schema
 
 ```text
 ✅ MongoDB connected successfully.
-🔹 Schema migration finished. 0 documents upgraded to v1
+🔹 Schema migration finished. 0 documents upgraded to v2
 ```
+
+> 注意：当前 schema 版本为 **v2**（新增 `openreview_obj` 字段）。从旧库升级时执行本脚本即可
+> 自动为已有记录补全 `openreview_obj` 空字段；随后再执行 `init_db` 重建索引（新增
+> `openreview_obj.forum_id` 的 partial 唯一索引）。
 
 ---
 
@@ -303,6 +358,54 @@ python -m ai4research.data_pipeline.scripts_py.crawl_arxiv_daily \
 
 ---
 
+### 5.6 爬取 OpenReview venue（会议论文）
+
+完整命令示例见 `scripts_md/4_crawl_openreview.md`。常用命令：
+
+冒烟测试（不写库、不富化、只抓 3 篇）：
+
+```bash
+python -m ai4research.data_pipeline.scripts_py.crawl_openreview \
+  --venue ICLR.cc/2024/Conference \
+  --enrich none \
+  --no-profiles --no-github --no-cited-history --no-llm-extract \
+  --limit 3 --dry-run
+```
+
+小规模真实入库（核心字段）：
+
+```bash
+python -m ai4research.data_pipeline.scripts_py.crawl_openreview \
+  --venue ICLR.cc/2024/Conference \
+  --enrich none --no-profiles --no-github --no-cited-history --no-llm-extract \
+  --limit 5
+```
+
+默认档位（Full + LLM 抽取，开启全部富化）：
+
+```bash
+python -m ai4research.data_pipeline.scripts_py.crawl_openreview \
+  --venue ICLR.cc/2024/Conference --limit 10
+```
+
+额外输出 Markdown 论文画像（vault，主存储仍是 MongoDB）：
+
+```bash
+python -m ai4research.data_pipeline.scripts_py.crawl_openreview \
+  --venue ICLR.cc/2024/Conference --limit 5 \
+  --vault --vault-dir openreview_vault
+```
+
+说明：
+
+* `--venue` 为 OpenReview venue id，例如 `ICLR.cc/2024/Conference`、`NeurIPS.cc/2023/Conference`；
+* `--enrich none|arxiv|s2|all` 控制 arXiv / Semantic Scholar 富化档位；
+* `--profiles` / `--github` / `--cited-history` / `--llm-extract` 默认开启，可用 `--no-xxx` 关闭；
+* OpenReview 匿名即可抓取，提供 `--username/--password`（或环境变量 `OPENREVIEW_USERNAME/OPENREVIEW_PASSWORD`）会显著加快作者画像解析；
+* 默认配置（venue、富化档位、限流间隔、环境变量名）见 `data_pipeline/source_configs/openreview_config.py`。
+
+---
+
 ## 6. 当前 arXiv 配置
 
 当前默认关注的 arXiv category 位于：
@@ -349,6 +452,7 @@ authors
 abstract
 abstract_entities
 arxiv_obj
+openreview_obj
 seen_in_categories
 accepted_by
 base_urls
@@ -377,8 +481,13 @@ _schema_version
 
 其中：
 
-* `_id`：由论文标题规范化后计算 SHA1 得到；
+* `_id`：由论文标题规范化后计算 SHA1 得到（arXiv 与 OpenReview 共用同一规则，实现跨源去重）；
 * `arxiv_obj`：存储 arXiv 专属信息；
+* `openreview_obj`：存储 OpenReview（会议）专属信息，与 `arxiv_obj` 平行，包含
+  `forum_id`、`openreview_url`、`openreview_pdf`、`venue`、`presentation_type`、
+  `primary_area`、`keywords`、`authorids`、`first_author_hp`、`affiliations`、
+  `s2_paper_id`、`corpus_id`、`doi`、`arxiv_id`、`time_start/time_end`，以及
+  标记由 LLM 抽取的 `auto_extracted`；非 OpenReview 记录该字段保持为空；
 * `seen_in_categories`：记录该论文是从哪些 arXiv category 入口被发现；
 * `seen_in_sources`：记录该论文来自哪些来源，例如 `arXiv`、`ICLR 2026`；
 * `edit_logs`：记录插入、更新、重复爬取等操作；
@@ -438,6 +547,72 @@ _schema_version
 }
 ```
 
+一条 OpenReview（会议）论文记录示例（节选，来自 ICLR 2024，核心字段未富化）：
+
+```python
+{
+    "_id": "c5319b816e59781f83ce108ff1d3f5ecc920ba54",
+    "title": "Exposing Text-Image Inconsistency Using Diffusion Models",
+    "authors": [
+        {"name": "Mingzhen Huang", "affiliation": "", "homepage": ""},
+        {"name": "Shan Jia", "affiliation": "", "homepage": ""}
+    ],
+    "abstract": "...",
+    "accepted_by": "ICLR 2024",
+    "arxiv_obj": {
+        "arxiv_id": "",
+        "arxiv_url": "",
+        "arxiv_pdf_url": "",
+        "arxiv_categories": [],
+        "comment": "",
+        "doi": "",
+        "submission_history": [{"version": "", "date": ""}]
+    },
+    "openreview_obj": {
+        "forum_id": "Ny150AblPu",
+        "number": 5,
+        "openreview_url": "https://openreview.net/forum?id=Ny150AblPu",
+        "openreview_pdf": "https://openreview.net/pdf/5ef1...cf04.pdf",
+        "venue": "ICLR 2024",
+        "presentation_type": "poster",
+        "primary_area": "societal considerations including fairness, safety, privacy",
+        "keywords": ["inconsistency detection", "multi-modal learning", "diffusion models"],
+        "authorids": ["~Mingzhen_Huang2", "~Shan_Jia1"],
+        "first_author_hp": "",
+        "affiliations": [],
+        "s2_paper_id": "",
+        "corpus_id": "",
+        "doi": "",
+        "arxiv_id": "",
+        "auto_extracted": [],
+        "time_start": "202309",
+        "time_end": "202401"
+    },
+    "base_urls": {
+        "openreview_url": "https://openreview.net/forum?id=Ny150AblPu"
+    },
+    "more_urls": {
+        "openreview_pdf": "https://openreview.net/pdf/5ef1...cf04.pdf",
+        "others": ["https://openreview.net/pdf/5ef1...cf04.pdf"]
+    },
+    "tags": ["inconsistency-detection", "multi-modal-learning", "diffusion-models"],
+    "seen_in_sources": ["ICLR 2024"],
+    "_schema_version": 2,
+    "edit_logs": [
+        {
+            "time": "2026-06-05T21:02:02+08:00",
+            "op": "insert from ICLR 2024",
+            "detail": "insert paper metadata (OpenReview)"
+        }
+    ]
+}
+```
+
+> 开启富化后（`--enrich all --profiles --github --cited-history --llm-extract`），
+> `arxiv_obj`、`base_urls.arxiv_url`、`more_urls.code`、`cite_numbers`、
+> `openreview_obj.affiliations/first_author_hp/s2_paper_id`、以及
+> `baselines/benchmarks/metrics` 等字段会被相应填充。
+
 ---
 
 ## 9. 已验证功能
@@ -455,6 +630,17 @@ _schema_version
 * 同一论文出现在多个 arXiv category 时，能够补充 `seen_in_categories`；
 * requests 依赖 warning 已修复。
 
+OpenReview 链路已端到端验证：
+
+* OpenReview v2/v1 自动探测、按 venue 偏移分页抓取成功（ICLR 2024 实测 2260 篇）；
+* note → `paper_schema`（v2）映射正确，`openreview_obj` 完整填充；
+* `_id` 使用标题哈希，与 arXiv 跨源去重；`upsert_openreview_paper` 跨源合并时
+  **不会**覆盖已有的 `arxiv_obj`，并把 `accepted_by` 覆盖为会议名；
+* 重复爬取幂等：不重复插入、`cite_numbers` 按日期累积、`edit_logs` 追加更新记录；
+* 可选 Markdown vault（每篇一个 `.md` + `_index.json`）输出正确；
+* `--dry-run` 不写库、不写文件；
+* `init_db` 成功创建 `openreview_obj.forum_id` partial 唯一索引。
+
 示例验证结果：
 
 ```text
@@ -465,6 +651,18 @@ python -m ai4research.data_pipeline.scripts_py.crawl_arxiv_daily \
 
 Crawling papers: 242paper [00:16, 15.01paper/s]
 🎉 2026-06-01 ~ 2026-06-01 crawl finished. Total papers processed: 242
+```
+
+```text
+python -m ai4research.data_pipeline.scripts_py.crawl_openreview \
+  --venue ICLR.cc/2024/Conference \
+  --enrich none --no-profiles --no-github --no-cited-history --no-llm-extract \
+  --limit 2
+
+Connected via API v2 [anonymous] (probe: 1 accepted note(s), group=True)
+Fetching notes for venueid=ICLR.cc/2024/Conference ... -> 2260 notes
+✅ Inserted new paper (OpenReview): c5319b816e59781f83ce108ff1d3f5ecc920ba54
+🎉 OpenReview venue ICLR.cc/2024/Conference crawl finished. Total papers processed: 2
 ```
 
 ---

@@ -34,6 +34,22 @@ def init_indexes():
             }
         )
 
+        # OpenReview forum_id 唯一索引：
+        # 同理，只对非空 forum_id 生效，避免重复插入同一篇 OpenReview 论文。
+        papers.create_index(
+            "openreview_obj.forum_id",
+            unique=True,
+            partialFilterExpression={
+                "openreview_obj.forum_id": {
+                    "$type": "string",
+                    "$gt": ""
+                }
+            }
+        )
+
+        # OpenReview venue 普通索引（按会议检索）
+        papers.create_index("openreview_obj.venue")
+
         print("✅ MongoDB indexes initialized successfully.")
 
     except errors.DuplicateKeyError as e:
