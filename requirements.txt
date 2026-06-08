@@ -5,3 +5,8 @@ requests==2.32.5
 charset-normalizer==3.4.7
 rich==15.0.0
 tqdm==4.67.3
+
+# OpenReview 抓取（移植自 openreview-paper-portrait）
+openreview-py>=1.40        # OpenReview v1/v2 官方客户端（硬依赖）
+pypdf>=4.0                 # 可选：LLM 抽取时把 PDF 转文本（缺失时回退 pdftotext / 摘要）
+PyYAML>=6.0               # 可选：Markdown vault 的 frontmatter（缺失时使用内置解析器）

@@ -10,7 +10,8 @@
 # -----------------------------------------------------------------------------------------------------------------------
 
 # 当前 schema 版本号（非常重要：用于标记当前的Schema更新了多少版）
-CURRENT_SCHEMA_VERSION = 1
+# v2: 新增 openreview_obj 字段（与 arxiv_obj 平行，记录 OpenReview 来源的专有信息）。
+CURRENT_SCHEMA_VERSION = 2
 
 
 # 默认字段结构：以后可能会随着分析的深入，增加更多自定义字段
@@ -47,6 +48,33 @@ DEFAULT_PAPER_FIELDS = {
                 "date": ""
             }
         ]
+    },
+
+    # OpenReview特有的字段：对于来自 OpenReview（会议）的论文记录，这里保存其专有信息；
+    # 与 arxiv_obj 平行，非 OpenReview 记录该字段保持为空。
+    # 🟢 forum_id / openreview_url / openreview_pdf / presentation_type / primary_area /
+    #    keywords / authorids / first_author_hp / affiliations（去重后的机构列表）/
+    #    s2_paper_id / corpus_id / doi / arxiv_id / time_start / time_end；
+    # 🔴 auto_extracted 记录哪些字段（Baselines/Benchmarks/Metrics）是由 LLM 抽取得到的。
+    "openreview_obj": {
+        "forum_id": "",
+        "number": None,
+        "openreview_url": "",
+        "openreview_pdf": "",
+        "venue": "",                # 例如 "ICLR 2026"
+        "presentation_type": "",    # 例如 Oral / Poster / Spotlight
+        "primary_area": "",
+        "keywords": [],
+        "authorids": [],
+        "first_author_hp": "",
+        "affiliations": [],         # 去重后的机构列表（非逐作者对齐）
+        "s2_paper_id": "",
+        "corpus_id": "",
+        "doi": "",
+        "arxiv_id": "",
+        "auto_extracted": [],       # 例如 ["Baselines", "Benchmarks", "Metrics"]
+        "time_start": "",           # YYYYMM
+        "time_end": "",             # YYYYMM
     },
 
     # 如果一篇论文既在arxiv的cs.CL分类下出现过，也在cs.AI分类下出现过，那么这个字段就记录["cs.CL", "cs.AI"]；
