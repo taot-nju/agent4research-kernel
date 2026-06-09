@@ -49,6 +49,27 @@ DEFAULT_PAPER_FIELDS = {
         ]
     },
 
+
+    # OpenReview 特有字段：
+    # 用于记录 OpenReview 上的 note/forum/venue/pdf 等信息。
+    # 对于非 OpenReview 来源的论文，该字段保持默认空值。
+    "openreview_obj": {
+        "note_id": "",  # OpenReview note 的 id，例如 6T3wJQhvc3
+        "forum_id": "",  # OpenReview forum id，通常和 note_id 一样
+        "number": "",  # OpenReview 上的 submission number
+        "venue": "",  # 例如 ICLR 2026 Poster
+        "venueid": "",  # 例如 ICLR.cc/2026/Conference
+        "paperhash": "",  # OpenReview 给出的 paperhash
+        "pdf_url": "",  # 完整 PDF 地址
+        "forum_url": "",  # OpenReview 论文页面地址
+        "keywords": [],  # OpenReview 页面为每篇投稿设置了必填项：关键词（由作者自己填写）
+        "tldr": "",  # OpenReview 里的 TLDR
+        "primary_area": "",  # 论文方向
+        "accept_type": "",  # 从 venue 中解析出的 Poster / Oral / Spotlight 等类型
+    },
+
+
+
     # 如果一篇论文既在arxiv的cs.CL分类下出现过，也在cs.AI分类下出现过，那么这个字段就记录["cs.CL", "cs.AI"]；
     # 如果一篇论文只在arXiv的cs.CL分类下出现过，那么这个字段就记录["cs.CL"]。
     "seen_in_categories": [], # 🟢

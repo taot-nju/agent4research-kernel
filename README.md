@@ -469,9 +469,120 @@ Crawling papers: 242paper [00:16, 15.01paper/s]
 
 ---
 
-## 10. 后续计划
 
-### 10.1 数据采集扩展
+## 10. 当前已支持功能
+
+### 10.1 MongoDB 论文数据存储
+
+项目使用 MongoDB 作为论文元数据与后续结构化分析结果的存储后端。每篇论文按照统一的 `paper_schema.py` 进行组织，包含标题、作者、摘要、来源信息、URL、处理状态、后续抽取字段等。
+
+当前支持：
+
+* 初始化 MongoDB 索引；
+* 论文记录 upsert，避免重复插入；
+* schema migration，用于在 schema 更新后补齐旧记录字段；
+* 多来源合并，例如同一篇论文可能同时来自 arXiv、OpenReview 或会议官网。
+
+### 10.2 arXiv 数据源
+
+当前已支持基于 arXiv 官方 Python SDK 的论文爬取。
+
+支持能力：
+
+* 按 arXiv category 爬取，例如 `cs.AI`、`cs.CL`；
+* 支持指定日期范围；
+* 不指定日期时默认爬取当天；
+* 支持 `--max-results` 调试参数；
+* 支持 `--categories` 指定单个或多个类别；
+* 一篇论文爬取完成后立即写入 MongoDB；
+* 同一篇论文出现在多个 arXiv category 时，会记录到 `seen_in_categories`。
+
+示例命令：
+
+```bash
+python -m ai4research.data_pipeline.scripts_py.crawl_arxiv_daily \
+  --start 2026-06-01 \
+  --end 2026-06-01 \
+  --categories cs.AI cs.CL \
+  --max-results 10
+```
+
+正式爬取时可以不传 `--max-results`：
+
+```bash
+python -m ai4research.data_pipeline.scripts_py.crawl_arxiv_daily \
+  --start 2026-06-01 \
+  --end 2026-06-01 \
+  --categories cs.AI
+```
+
+### 10.3 OpenReview 数据源
+
+当前已支持基于 `openreview-py` 的 OpenReview 论文爬取。
+
+OpenReview 主要用于爬取已经托管在 OpenReview 上的会议论文，例如 ICLR 2026、ICML 2026 等。对于这些会议年份，如果 OpenReview 已经提供标题、作者、摘要、录用类型、PDF 链接等完整信息，则优先使用 OpenReview，不再重复爬取会议官网主页。
+
+当前支持能力：
+
+* 按 venue/year 爬取 OpenReview 论文；
+* 支持读取 OpenReview note 中的标题、作者、摘要、关键词、TLDR、primary area、venue、venueid、paperhash、PDF 链接等字段；
+* 自动将 OpenReview 的相对 PDF 路径转换为完整 URL；
+* 自动解析录用类型，例如 `Poster`、`Oral`；
+* 支持 `--max-results` 调试参数；
+* 一篇论文爬取完成后立即写入 MongoDB；
+* 支持重复爬取去重。
+
+示例命令：
+
+```bash
+python -m ai4research.data_pipeline.scripts_py.crawl_openreview \
+  --venue ICLR \
+  --year 2026 \
+  --max-results 3
+```
+
+正式爬取时可以不传 `--max-results`：
+
+```bash
+python -m ai4research.data_pipeline.scripts_py.crawl_openreview \
+  --venue ICLR \
+  --year 2026
+```
+
+### 10.4 当前数据流
+
+当前论文数据采集流程如下：
+
+```text
+source_configs/
+    定义数据源配置，例如 arXiv categories、OpenReview venue/year
+
+crawlers/
+    负责从具体数据源获取论文，并转换为统一 paper_data
+
+pipelines/
+    负责组织爬取流程，并逐篇调用 upsert_paper()
+
+db_ops/paper_repository.py
+    负责论文入库、去重、字段补全、多来源合并
+
+MongoDB
+    存储统一 schema 下的论文记录
+```
+
+整体原则是：
+
+```text
+爬取一篇论文
+    -> 转成统一 paper schema
+    -> 立即 upsert 到 MongoDB
+```
+
+
+
+## 11. 后续计划
+
+### 11.1 数据采集扩展
 
 计划支持更多数据源：
 
@@ -490,7 +601,7 @@ Crawling papers: 242paper [00:16, 15.01paper/s]
 
 ---
 
-### 10.2 PDF 与正文处理
+### 11.2 PDF 与正文处理
 
 计划支持：
 
@@ -503,7 +614,7 @@ Crawling papers: 242paper [00:16, 15.01paper/s]
 
 ---
 
-### 10.3 论文画像抽取
+### 11.3 论文画像抽取
 
 计划从论文正文中抽取：
 
@@ -521,7 +632,7 @@ Crawling papers: 242paper [00:16, 15.01paper/s]
 
 ---
 
-### 10.4 检索与推荐
+### 11.4 检索与推荐
 
 计划支持：
 
@@ -536,7 +647,7 @@ Crawling papers: 242paper [00:16, 15.01paper/s]
 
 ---
 
-### 10.5 Research Agent 支撑
+### 11.5 Research Agent 支撑
 
 长期目标是让该项目成为 Agent4Research 的底层 kernel，为上层 research agent 提供：
 
@@ -550,7 +661,7 @@ Crawling papers: 242paper [00:16, 15.01paper/s]
 
 ---
 
-## 11. 项目定位
+## 12. 项目定位
 
 Agent4Research Kernel 当前阶段定位为：
 

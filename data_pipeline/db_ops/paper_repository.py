@@ -118,22 +118,49 @@ def upsert_paper(paper_data: dict, source: str, category: str = None):
                     update_ops
                 )
                 print(f"♻️ No update, paper already seen from this source: {paper_data['_id']}")
+        # else:
+        #     # 不同源，更新字段
+        #     edit_log = {
+        #         "time": now_beijing_iso(),
+        #         "op": f"update from {source}" + (f" @ {category}" if category else ""),
+        #         "detail": "update paper metadata"
+        #     }
+
+
+        #     update_dict = {
+        #         "$set": paper_data,
+        #         "$addToSet": {"seen_in_sources": source},
+        #         "$push": {"edit_logs": edit_log}
+        #     }
+
+
+        #     if category:
+        #         update_dict["$addToSet"]["seen_in_categories"] = category
+
+        #     papers.update_one({"_id": paper_data["_id"]}, update_dict)
+        #     print(f"♻️ Updated paper from new source: {paper_data['_id']}")
         else:
-            # 不同源，更新字段
+            # 不同源：只补充缺失/空字段，避免用新来源的默认空值覆盖已有来源信息
+            patch = merge_missing_fields(doc, paper_data)
+
             edit_log = {
                 "time": now_beijing_iso(),
                 "op": f"update from {source}" + (f" @ {category}" if category else ""),
-                "detail": "update paper metadata"
+                "detail": f"fields updated: {list(patch.keys())}" if patch else "new source recorded only"
             }
-            update_dict = {
-                "$set": paper_data,
+
+            update_ops = {
                 "$addToSet": {"seen_in_sources": source},
                 "$push": {"edit_logs": edit_log}
             }
-            if category:
-                update_dict["$addToSet"]["seen_in_categories"] = category
 
-            papers.update_one({"_id": paper_data["_id"]}, update_dict)
+            if patch:
+                update_ops["$set"] = patch
+
+            if category:
+                update_ops["$addToSet"]["seen_in_categories"] = category
+
+            papers.update_one({"_id": paper_data["_id"]}, update_ops)
             print(f"♻️ Updated paper from new source: {paper_data['_id']}")
 
     print("[red]One record processed!")
