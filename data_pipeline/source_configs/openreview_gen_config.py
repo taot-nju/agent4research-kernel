@@ -105,10 +105,43 @@ OPENREVIEW_VENUES = {
     },
 
     "NeurIPS": {
-        "venue": "NeurIPS",
         "years": {
-            # 2026 暂不配置，等放榜或 OpenReview 页面稳定后再补。
-        },
+            2022: {
+                "venue_id": "NeurIPS.cc/2022/Conference",
+                "api_version": "v1",
+                "query_type": "content_venueid",
+                "source": "OpenReview",
+                "skip_official_site": True,
+                "accepted_venues": [
+                    "NeurIPS 2022 Accept",
+                ],
+                "note": "NeurIPS 2022 uses OpenReview v1 API. Filter accepted papers by venue field.",
+            },
+            2023: {
+                "venue_id": "NeurIPS.cc/2023/Conference",
+                "api_version": "v2",
+                "query_type": "content_venueid",
+                "source": "OpenReview",
+                "skip_official_site": True,
+                "note": "NeurIPS 2023 uses OpenReview v2 API. Accepted papers can be queried by venueid.",
+            },
+            2024: {
+                "venue_id": "NeurIPS.cc/2024/Conference",
+                "api_version": "v2",
+                "query_type": "content_venueid",
+                "source": "OpenReview",
+                "skip_official_site": True,
+                "note": "NeurIPS 2024 uses OpenReview v2 API. Accepted papers can be queried by venueid.",
+            },
+            2025: {
+                "venue_id": "NeurIPS.cc/2025/Conference",
+                "api_version": "v2",
+                "query_type": "content_venueid",
+                "source": "OpenReview",
+                "skip_official_site": True,
+                "note": "NeurIPS 2025 uses OpenReview v2 API. Accepted papers can be queried by venueid.",
+            },
+        }
     },
 }
 
