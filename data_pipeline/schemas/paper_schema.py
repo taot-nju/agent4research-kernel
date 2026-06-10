@@ -80,6 +80,21 @@ DEFAULT_PAPER_FIELDS = {
         "keywords": [],  # keywords：官网 meta keywords
     },
 
+    "acl_anthology_obj": {
+        "anthology_id": "",      # 例如 2025.acl-long.1
+        "volume_id": "",        # 例如 2025.acl-long
+        "venue": "",            # ACL
+        "year": None,            # 2025
+        "subtype": "",          # Long Paper / Short Paper / Findings
+        "paper_url": "",        # https://aclanthology.org/2025.acl-long.1/
+        "pdf_url": "",          # https://aclanthology.org/2025.acl-long.1.pdf
+        "bib_url": "",          # https://aclanthology.org/2025.acl-long.1.bib
+        "doi": "",              # 10.18653/v1/2025.acl-long.1
+        "first_page": "",
+        "last_page": "",
+        "publication_date": "", # citation_publication_date，例如 2025/7
+    },
+
 
 
     # 如果一篇论文既在arxiv的cs.CL分类下出现过，也在cs.AI分类下出现过，那么这个字段就记录["cs.CL", "cs.AI"]；
