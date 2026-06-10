@@ -16,17 +16,91 @@ OPENREVIEW_VENUES = {
         "years": {
             2026: {
                 "venue_id": "ICLR.cc/2026/Conference",
+                "api_version": "v2",
+                "query_type": "content_venueid",
                 "source": "OpenReview",
                 "skip_official_site": True,
-                "note": "ICLR 2026 homepage does not provide complete download page yet; use OpenReview as primary source.",
+                "note": "Use OpenReview as primary source.",
+            },
+            2025: {
+                "venue_id": "ICLR.cc/2025/Conference",
+                "api_version": "v2",
+                "query_type": "content_venueid",
+                "source": "OpenReview",
+                "skip_official_site": True,
+                "note": "Use OpenReview as primary source.",
+            },
+            2024: {
+                "venue_id": "ICLR.cc/2024/Conference",
+                "api_version": "v2",  # 用 openreview.api.OpenReviewClient(baseurl="https://api2.openreview.net")
+                "query_type": "content_venueid",
+                "source": "OpenReview",
+                "skip_official_site": True,
+                "note": "Use OpenReview as primary source.",
+            },
+            2023: {
+                "venue_id": "ICLR.cc/2023/Conference",
+                "api_version": "v1",  # 用 openreview.Client(baseurl="https://api.openreview.net")
+                "query_type": "content_venueid",
+                "source": "OpenReview",
+                "skip_official_site": True,
+                "accepted_venues": [  # 只保留这些 venue 字段对应的录用论文
+                    "ICLR 2023 poster",
+                    "ICLR 2023 notable top 25%",
+                    "ICLR 2023 notable top 5%",
+                ],
+                "note": "ICLR 2023 uses OpenReview v1 API. Filter accepted papers by venue field.",
+            },
+            2022: {
+                "venue_id": "ICLR.cc/2022/Conference",
+                "api_version": "v1",
+                "query_type": "content_venueid",
+                "source": "OpenReview",
+                "skip_official_site": True,
+                "accepted_venues": [
+                    "ICLR 2022 Poster",
+                    "ICLR 2022 Spotlight",
+                    "ICLR 2022 Oral",
+                ],
+                "note": "ICLR 2022 uses OpenReview v1 API. Filter accepted papers by venue field.",
             },
         },
     },
 
+    # "ICML": {
+    #     "venue": "ICML",
+    #     "years": {
+    #         # 2026 暂不配置，等放榜或 OpenReview 页面稳定后再补。
+    #     },
+    # },
+
     "ICML": {
         "venue": "ICML",
         "years": {
-            # 2026 暂不配置，等放榜或 OpenReview 页面稳定后再补。
+            2025: {
+                "venue_id": "ICML.cc/2025/Conference",
+                "api_version": "v2",
+                "query_type": "content_venueid",
+                "source": "OpenReview",
+                "skip_official_site": True,
+                "note": "Use OpenReview as primary source.",
+            },
+            2024: {
+                "venue_id": "ICML.cc/2024/Conference",
+                "api_version": "v2",
+                "query_type": "content_venueid",
+                "source": "OpenReview",
+                "skip_official_site": True,
+                "note": "Use OpenReview as primary source.",
+            },
+            2023: {
+                "venue_id": "ICML.cc/2023/Conference",
+                "api_version": "v2",
+                "query_type": "content_venueid",
+                "source": "OpenReview",
+                "skip_official_site": True,
+                "note": "Use OpenReview as primary source.",
+            },
         },
     },
 

@@ -69,6 +69,18 @@ DEFAULT_PAPER_FIELDS = {
     },
 
 
+    "official_obj": {
+        "venue": "",  # venue：ICML
+        "year": "",  # year：2026
+        "event_id": "",  # event_id：64869
+        "event_type": "",  # event_type：poster
+        "accept_type": "",  # accept_type：Poster
+        "official_url": "",  # official_url：https://icml.cc/virtual/2026/poster/64869
+        "official_pdf_url": "",  # official_pdf_url：目前为空
+        "keywords": [],  # keywords：官网 meta keywords
+    },
+
+
 
     # 如果一篇论文既在arxiv的cs.CL分类下出现过，也在cs.AI分类下出现过，那么这个字段就记录["cs.CL", "cs.AI"]；
     # 如果一篇论文只在arXiv的cs.CL分类下出现过，那么这个字段就记录["cs.CL"]。

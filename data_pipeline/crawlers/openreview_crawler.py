@@ -43,9 +43,88 @@ class OpenReviewCrawler(BaseCrawler):
 
         self.venue_id = self.config["venue_id"]
 
-        self.client = openreview.api.OpenReviewClient(
-            baseurl=self.API2_URL
-        )
+        # self.client = openreview.api.OpenReviewClient(baseurl=self.API2_URL)
+
+        self.api_version = self.config.get("api_version", "v2")
+
+        if self.api_version == "v2":
+            self.client = openreview.api.OpenReviewClient(baseurl=self.API2_URL)
+        elif self.api_version == "v1":
+            self.client = openreview.Client(baseurl="https://api.openreview.net")
+        else:
+            raise ValueError(f"Unsupported OpenReview api_version: {self.api_version}")
+
+
+    def _fetch_notes(self):
+        """
+        根据 api_version 和 max_results 获取 OpenReview notes。
+
+        v2:
+            - 调试模式：get_notes(limit=max_results)
+            - 正式模式：get_all_notes()
+
+        v1:
+            - 调试模式：get_notes(limit=max_results)
+            - 正式模式：分页 get_notes(limit=1000, offset=...)
+        """
+        query_type = self.config.get("query_type", "content_venueid")
+
+        if query_type != "content_venueid":
+            raise ValueError(f"Unsupported OpenReview query_type: {query_type}")
+
+        query_kwargs = {
+            "content": {"venueid": self.venue_id}
+        }
+
+        # 调试模式：只取 max_results 条
+        if self.max_results is not None:
+            notes = self.client.get_notes(
+                **query_kwargs,
+                limit=self.max_results,
+                offset=0,
+            )
+            print(
+                f"📄 Notes fetched from OpenReview: "
+                f"{len(notes)} / max_results={self.max_results}"
+            )
+            return notes
+
+        # 正式模式：v2 可以直接 get_all_notes
+        if self.api_version == "v2":
+            notes = self.client.get_all_notes(**query_kwargs)
+            print(f"📄 Total notes fetched from OpenReview: {len(notes)}")
+            return notes
+
+        # 正式模式：v1 需要分页，单次 limit <= 1000
+        if self.api_version == "v1":
+            limit = 1000
+            offset = 0
+            all_notes = []
+
+            while True:
+                notes = self.client.get_notes(
+                    **query_kwargs,
+                    limit=limit,
+                    offset=offset,
+                )
+
+                print(f"📄 Fetched OpenReview v1 notes: offset={offset}, num={len(notes)}")
+
+                if not notes:
+                    break
+
+                all_notes.extend(notes)
+
+                if len(notes) < limit:
+                    break
+
+                offset += limit
+
+            print(f"📄 Total notes fetched from OpenReview: {len(all_notes)}")
+            return all_notes
+
+        raise ValueError(f"Unsupported OpenReview api_version: {self.api_version}")
+
 
     def crawl(self, start_date=None, end_date=None):
         """
@@ -66,26 +145,55 @@ class OpenReviewCrawler(BaseCrawler):
         # if self.max_results is not None:
         #     notes = notes[:self.max_results]
 
-        if self.max_results is not None:
-            notes = self.client.get_notes(
-                content={"venueid": self.venue_id},
-                limit=self.max_results,
-                offset=0,
-            )
-            print(f"📄 Notes fetched from OpenReview: {len(notes)} / max_results={self.max_results}")
-        else:
-            notes = self.client.get_all_notes(
-                content={"venueid": self.venue_id}
-            )
-            print(f"📄 Total notes fetched from OpenReview: {len(notes)}")
+
+        # if self.max_results is not None:
+        #     notes = self.client.get_notes(
+        #         content={"venueid": self.venue_id},
+        #         limit=self.max_results,
+        #         offset=0,
+        #     )
+        #     print(f"📄 Notes fetched from OpenReview: {len(notes)} / max_results={self.max_results}")
+        # else:
+        #     notes = self.client.get_all_notes(
+        #         content={"venueid": self.venue_id}
+        #     )
+        #     print(f"📄 Total notes fetched from OpenReview: {len(notes)}")
+        notes = self._fetch_notes()
 
 
+        # venue_year = f"{self.venue} {self.year}"
+
+        # for note in notes:
+        #     paper_data = self._note_to_paper_data(note)
+        #     yield paper_data, venue_year
+
+        
+
+        accepted_venues = self.config.get("accepted_venues")
+
+        if accepted_venues:
+            before_count = len(notes)
+
+            filtered_notes = []
+            for note in notes:
+                venue_value = self._get_content_value(note, "venue")
+                if venue_value in accepted_venues:
+                    filtered_notes.append(note)
+
+            notes = filtered_notes
+
+            print(
+                f"🧹 Filtered accepted papers by venue: "
+                f"{len(notes)} / {before_count}"
+            )
 
         venue_year = f"{self.venue} {self.year}"
 
         for note in notes:
             paper_data = self._note_to_paper_data(note)
             yield paper_data, venue_year
+
+
 
     def _note_to_paper_data(self, note):
         """
@@ -210,24 +318,63 @@ class OpenReviewCrawler(BaseCrawler):
 
         return cls.BASE_URL + "/" + path
 
-    @staticmethod
-    def _parse_accept_type(venue_text):
-        """
-        从 venue 字段中解析录用类型。
+    # @staticmethod
+    # def _parse_accept_type(venue_text):
+    #     """
+    #     从 venue 字段中解析录用类型。
 
-        例如：
-            ICLR 2026 Poster -> Poster
-            ICLR 2026 Oral -> Oral
-            ICLR 2026 Spotlight -> Spotlight
+    #     例如：
+    #         ICLR 2026 Poster -> Poster
+    #         ICLR 2026 Oral -> Oral
+    #         ICLR 2026 Spotlight -> Spotlight
+    #     """
+    #     if not venue_text:
+    #         return ""
+
+    #     parts = venue_text.split()
+    #     if len(parts) <= 2:
+    #         return ""
+
+    #     return " ".join(parts[2:])
+
+    def _parse_accept_type(self, venue_text: str) -> str:
+        """
+        从 OpenReview venue 字段中解析录用类型。
+
+        示例：
+        - ICLR 2026 Poster -> Poster
+        - ICLR 2026 Oral -> Oral
+        - ICLR 2024 spotlight -> Spotlight
+        - ICLR 2023 poster -> Poster
+        - ICLR 2023 notable top 25% -> Notable Top 25%
+        - ICLR 2023 notable top 5% -> Notable Top 5%
         """
         if not venue_text:
             return ""
 
-        parts = venue_text.split()
-        if len(parts) <= 2:
+        text = venue_text.strip()
+        lower_text = text.lower()
+
+        known_types = [
+            ("notable top 25%", "Notable Top 25%"),
+            ("notable top 5%", "Notable Top 5%"),
+            ("spotlight", "Spotlight"),
+            ("oral", "Oral"),
+            ("poster", "Poster"),
+        ]
+
+        for pattern, normalized in known_types:
+            if pattern in lower_text:
+                return normalized
+
+        # fallback：保留最后一个词，但首字母大写
+        parts = text.split()
+        if not parts:
             return ""
 
-        return " ".join(parts[2:])
+        return parts[-1].capitalize()
+
+    
 
     @staticmethod
     def _clean_text(text):

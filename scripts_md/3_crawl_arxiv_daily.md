@@ -30,5 +30,3 @@ python -m ai4research.data_pipeline.scripts_py.crawl_arxiv_daily \
   --categories cs.AI \
   --max-results 2
 ```
-
-这是<span style='color:red'>测试</span>！

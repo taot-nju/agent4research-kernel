@@ -61,12 +61,20 @@ python -m ai4research.data_pipeline.scripts_py.query_paper \
   --brief
 ```
 
+```bash
+python -m ai4research.data_pipeline.scripts_py.query_paper \
+  --field _id \
+  --value 9067cdbb36d9a5c2a2f4a7cfc8004ee2a7d93191 \
+  --limit 3 \
+  --brief
+```
+
 `accept_by: ICLR 2026`  DB真实记录信息："accepted_by": "ICLR 2026"
 ```bash
 python -m ai4research.data_pipeline.scripts_py.query_paper \
   --field accepted_by \
-  --value "ICLR 2026" \
-  --limit 3 \
+  --value "ICLR 2023" \
+  --limit 20 \
   --brief
 ```
 
@@ -86,4 +94,33 @@ python -m ai4research.data_pipeline.scripts_py.query_paper \
   --limit 3 \
   --brief \
   --show-abstract
+```
+
+# 质检测试（检查某1个或n个字段是否都存在）
+
+检查 ICML 2022
+
+```bash
+python -m ai4research.data_pipeline.scripts_py.check_fields \
+  --accepted-by "ICML 2022" \
+  --source PMLR \
+  --field abstract \
+  --field base_urls.pmlr_abs_url \
+  --field base_urls.pmlr_pdf_url \
+  --field more_urls.pmlr_publication_date \
+  --field more_urls.pmlr_firstpage \
+  --field more_urls.pmlr_lastpage
+```
+
+
+检查 OpenReview
+
+```bash
+python -m ai4research.data_pipeline.scripts_py.check_fields \
+  --accepted-by "ICML 2025" \
+  --source OpenReview \
+  --field abstract \
+  --field base_urls.openreview_pdf_url \
+  --field openreview_obj.forum_url \
+  --field openreview_obj.accept_type
 ```
