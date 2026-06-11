@@ -1,0 +1,192 @@
+{
+  "_id": "5f72fe24f143bb5d564784c2c7d908ba9c33dcf4",
+  "title": "Instance-dependent Early Stopping",
+  "aliases": [],
+  "authors": [
+    {
+      "name": "Suqin Yuan",
+      "affiliation": "",
+      "homepage": "https://suqinyuan.github.io"
+    },
+    {
+      "name": "Runqi Lin",
+      "affiliation": "",
+      "homepage": ""
+    },
+    {
+      "name": "Lei Feng",
+      "affiliation": "",
+      "homepage": ""
+    },
+    {
+      "name": "Bo Han",
+      "affiliation": "",
+      "homepage": ""
+    },
+    {
+      "name": "Tongliang Liu",
+      "affiliation": "",
+      "homepage": ""
+    }
+  ],
+  "abstract": "In machine learning practice, early stopping has been widely used to regularize models and can save computational costs by halting the training process when the model's performance on a validation set stops improving. However, conventional early stopping applies the same stopping criterion to all instances without considering their individual learning statuses, which leads to redundant computations on instances that are already well-learned. To further improve the efficiency, we propose an Instance-dependent Early Stopping (IES) method that adapts the early stopping mechanism from the entire training set to the instance level, based on the core principle that once the model has mastered an instance, the training on it should stop. IES considers an instance as mastered if the second-order differences of its loss value remain within a small range around zero. This offers a more consistent measure of an instance's learning status compared with directly using the loss value, and thus allows for a unified threshold to determine when an instance can be excluded from further backpropagation. We show that excluding mastered instances from backpropagation can increase the gradient norms, thereby accelerating the decrease of the training loss and speeding up the training process. Extensive experiments on benchmarks demonstrate that IES method can reduce backpropagation instances by 10%-50% while maintaining or even slightly improving the test accuracy and transfer learning performance of a model.",
+  "abstract_entities": [],
+  "arxiv_obj": {
+    "arxiv_id": "2502.07547",
+    "arxiv_url": "https://arxiv.org/abs/2502.07547",
+    "arxiv_pdf_url": "https://arxiv.org/pdf/2502.07547",
+    "arxiv_categories": [],
+    "comment": "",
+    "doi": "10.48550/arXiv.2502.07547",
+    "submission_history": [
+      {
+        "version": "v1",
+        "date": "2024-09-01"
+      }
+    ]
+  },
+  "openreview_obj": {
+    "forum_id": "P42DbV2nuV",
+    "number": 2,
+    "openreview_url": "https://openreview.net/forum?id=P42DbV2nuV",
+    "openreview_pdf": "https://openreview.net/pdf/8fddee1917f5289fe7908965f534e27f36e3f4db.pdf",
+    "venue": "ICLR 2025",
+    "presentation_type": "Spotlight",
+    "primary_area": "unsupervised, self-supervised, semi-supervised, and supervised representation learning",
+    "keywords": [
+      "Early Stopping",
+      "Supervised Learning",
+      "Deep Learning",
+      "Efficiency",
+      "Sample Selection",
+      "Data Pruning"
+    ],
+    "authorids": [
+      "~Suqin_Yuan1",
+      "~Runqi_Lin1",
+      "~Lei_Feng1",
+      "~Bo_Han1",
+      "~Tongliang_Liu1"
+    ],
+    "first_author_hp": "https://suqinyuan.github.io",
+    "affiliations": [
+      "The University of Sydney",
+      "University of Sydney",
+      "Singapore University of Technology and Design",
+      "MBZUAI",
+      "Mohamed bin Zayed University of Artificial Intelligence"
+    ],
+    "s2_paper_id": "d643ca410b005032b7b398569d7f8ddfa616ba76",
+    "corpus_id": "276258809",
+    "doi": "10.48550/arXiv.2502.07547",
+    "arxiv_id": "2502.07547",
+    "auto_extracted": [
+      "Baselines",
+      "Benchmarks",
+      "Metrics"
+    ],
+    "time_start": "202409",
+    "time_end": "202501"
+  },
+  "accepted_by": "ICLR 2025",
+  "base_urls": {
+    "openreview_url": "https://openreview.net/forum?id=P42DbV2nuV",
+    "arxiv_url": "https://arxiv.org/abs/2502.07547",
+    "arxiv_pdf_url": "https://arxiv.org/pdf/2502.07547"
+  },
+  "more_urls": {
+    "openreview_pdf": "https://openreview.net/pdf/8fddee1917f5289fe7908965f534e27f36e3f4db.pdf",
+    "others": [
+      "https://openreview.net/pdf/8fddee1917f5289fe7908965f534e27f36e3f4db.pdf",
+      "https://www.semanticscholar.org/paper/d643ca410b005032b7b398569d7f8ddfa616ba76"
+    ]
+  },
+  "cite_numbers": [
+    "1@2024.10.01",
+    "1@2025.01.01",
+    "3@2025.04.01",
+    "5@2025.07.01",
+    "7@2025.10.01",
+    "8@2026.01.01",
+    "11@2026.04.01",
+    "14@2026.06.06"
+  ],
+  "tags": [
+    "early-stopping",
+    "supervised-learning",
+    "deep-learning",
+    "efficiency",
+    "sample-selection",
+    "data-pruning"
+  ],
+  "toc_tree": [],
+  "references": [],
+  "keywords": [
+    "Early Stopping",
+    "Supervised Learning",
+    "Deep Learning",
+    "Efficiency",
+    "Sample Selection",
+    "Data Pruning"
+  ],
+  "summary_short": "We propose an instance-dependent early stopping method that stops training at the instance level by determining whether the model has fully learned an instance. It reduces computational costs while maintaining or even improving model performance.",
+  "summary_long": "",
+  "txt_contributions": "",
+  "txt_scientific_question": "",
+  "pipeline": "",
+  "baselines": [
+    "Random Remove",
+    "Small Loss & Rescale",
+    "Conventional Early Stopping",
+    "SB",
+    "DIHCL",
+    "EfficientTrain",
+    "InfoBatch",
+    "No Removal"
+  ],
+  "benchmarks": [
+    "CIFAR-10",
+    "CIFAR-100",
+    "ImageNet-1k",
+    "Caltech-101",
+    "PASCAL VOC 2007",
+    "PASCAL VOC 2012",
+    "CelebA"
+  ],
+  "metrics": [
+    "Test accuracy",
+    "Mini-batch Saved",
+    "Wall-time Speedup",
+    "mAP",
+    "mIoU",
+    "Training loss",
+    "Gradient norm",
+    "SAM value",
+    "Maximum eigenvalue of the Hessian matrix",
+    "Recall",
+    "Demographic Parity Difference",
+    "Max Eigenvalue of Hessian",
+    "DPD"
+  ],
+  "processing_status": {
+    "toc_extracted": false,
+    "references_extracted": false,
+    "pdf_downloaded": false,
+    "txt_extracted": false,
+    "json_extracted": false
+  },
+  "local_txt_path": "",
+  "local_pdf_path": "",
+  "local_json_path": "",
+  "_schema_version": 2,
+  "seen_in_sources": [
+    "ICLR 2025"
+  ],
+  "edit_logs": [
+    {
+      "time": "2026-06-06T00:14:24+08:00",
+      "op": "insert from ICLR 2025",
+      "detail": "insert paper metadata (OpenReview)"
+    }
+  ]
+}

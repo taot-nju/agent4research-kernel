@@ -1,0 +1,242 @@
+{
+"~Suqin_Yuan1": {
+"id": "~Suqin_Yuan1",
+"name": "Suqin Yuan",
+"homepage": "https://suqinyuan.github.io",
+"gscholar": "https://scholar.google.com/citations?user=PJfBjGQAAAAJ&hl",
+"dblp": null,
+"affiliation": "The University of Sydney",
+"position": "PhD student",
+"history": [
+{
+"name": "The University of Sydney",
+"start": 2022,
+"end": null,
+"position": "PhD student"
+}
+]
+},
+"~Runqi_Lin1": {
+"id": "~Runqi_Lin1",
+"name": "Runqi Lin",
+"homepage": "https://runqilin.github.io",
+"gscholar": "https://scholar.google.com/citations?user=Zg7PKbcAAAAJ&hl=en&oi=ao",
+"dblp": "https://dblp.org/pid/359/1108",
+"affiliation": "University of Oxford",
+"position": "Postdoc",
+"history": [
+{
+"name": "University of Oxford",
+"start": 2026,
+"end": null,
+"position": "Postdoc"
+},
+{
+"name": "University of Sydney",
+"start": 2022,
+"end": 2026,
+"position": "PhD student"
+}
+]
+},
+"~Lei_Feng1": {
+"id": "~Lei_Feng1",
+"name": "Lei Feng",
+"homepage": "https://lfeng1995.github.io/",
+"gscholar": "https://scholar.google.com.sg/citations?user=KomQOFkAAAAJ&hl",
+"dblp": "https://dblp.org/pid/76/847-6",
+"affiliation": "Southeast University",
+"position": "Full Professor",
+"history": [
+{
+"name": "Southeast University",
+"start": 2025,
+"end": null,
+"position": "Full Professor"
+},
+{
+"name": "Singapore University of Technology and Design",
+"start": 2024,
+"end": 2024,
+"position": "Assistant Professor"
+},
+{
+"name": "Nanyang Technological University",
+"start": 2023,
+"end": 2023,
+"position": "Visiting Professor"
+},
+{
+"name": "Chongqing University",
+"start": 2021,
+"end": 2022,
+"position": "Full Professor"
+},
+{
+"name": "Nanyang Technological University",
+"start": 2017,
+"end": 2020,
+"position": "PhD student"
+},
+{
+"name": "Southwest University",
+"start": 2013,
+"end": 2017,
+"position": "Undergrad student"
+}
+]
+},
+"~Bo_Han1": {
+"id": "~bo_han2",
+"name": "Bo Han",
+"homepage": "https://bhanml.github.io/",
+"gscholar": "https://scholar.google.com/citations?user=nTNjqHwAAAAJ&hl=en",
+"dblp": "https://dblp.org/pid/241/0472-3",
+"affiliation": "HKBU",
+"position": "Associate Professor",
+"history": [
+{
+"name": "HKBU",
+"start": 2025,
+"end": null,
+"position": "Associate Professor"
+},
+{
+"name": "RIKEN",
+"start": 2020,
+"end": null,
+"position": "Adjunct Scientist"
+},
+{
+"name": "HKBU",
+"start": 2020,
+"end": 2025,
+"position": "Assistant Professor"
+},
+{
+"name": "MBZUAI",
+"start": 2024,
+"end": 2024,
+"position": "Researcher"
+},
+{
+"name": "Microsoft Research",
+"start": 2022,
+"end": 2022,
+"position": "Researcher"
+},
+{
+"name": "RIKEN",
+"start": 2019,
+"end": 2020,
+"position": "Postdoc"
+},
+{
+"name": "University of Technology Sydney",
+"start": 2015,
+"end": 2019,
+"position": "PhD student"
+}
+]
+},
+"~bo_han2": {
+"id": "~bo_han2",
+"name": "Bo Han",
+"homepage": "https://bhanml.github.io/",
+"gscholar": "https://scholar.google.com/citations?user=nTNjqHwAAAAJ&hl=en",
+"dblp": "https://dblp.org/pid/241/0472-3",
+"affiliation": "HKBU",
+"position": "Associate Professor",
+"history": [
+{
+"name": "HKBU",
+"start": 2025,
+"end": null,
+"position": "Associate Professor"
+},
+{
+"name": "RIKEN",
+"start": 2020,
+"end": null,
+"position": "Adjunct Scientist"
+},
+{
+"name": "HKBU",
+"start": 2020,
+"end": 2025,
+"position": "Assistant Professor"
+},
+{
+"name": "MBZUAI",
+"start": 2024,
+"end": 2024,
+"position": "Researcher"
+},
+{
+"name": "Microsoft Research",
+"start": 2022,
+"end": 2022,
+"position": "Researcher"
+},
+{
+"name": "RIKEN",
+"start": 2019,
+"end": 2020,
+"position": "Postdoc"
+},
+{
+"name": "University of Technology Sydney",
+"start": 2015,
+"end": 2019,
+"position": "PhD student"
+}
+]
+},
+"~Tongliang_Liu1": {
+"id": "~Tongliang_Liu1",
+"name": "Tongliang Liu",
+"homepage": "https://tongliang-liu.github.io/",
+"gscholar": "https://scholar.google.com.au/citations?user=EiLdZ_YAAAAJ&hl=en",
+"dblp": "https://dblp.org/pid/150/6667",
+"affiliation": "University of Sydney",
+"position": "Associate Professor",
+"history": [
+{
+"name": "University of Sydney",
+"start": 2023,
+"end": null,
+"position": "Associate Professor"
+},
+{
+"name": "RIKEN",
+"start": 2020,
+"end": null,
+"position": "Visiting Scientist"
+},
+{
+"name": "Mohamed bin Zayed University of Artificial Intelligence",
+"start": 2022,
+"end": 2025,
+"position": "Affiliated Associate Professor"
+},
+{
+"name": "University of Sydney",
+"start": 2017,
+"end": 2023,
+"position": "Lecturer"
+},
+{
+"name": "University of Technology Sydney",
+"start": 2016,
+"end": 2017,
+"position": "Lecturer"
+},
+{
+"name": "University of Technology Sydney",
+"start": 2012,
+"end": 2016,
+"position": "PhD"
+}
+]
+}
+}

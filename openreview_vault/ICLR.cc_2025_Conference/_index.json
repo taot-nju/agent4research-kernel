@@ -1,0 +1,28 @@
+{
+  "venue": "ICLR.cc/2025/Conference",
+  "scraped_at": "2026-06-06",
+  "api_version": "2",
+  "count": 1,
+  "papers": [
+    {
+      "title": "Instance-dependent Early Stopping",
+      "forum_id": "P42DbV2nuV",
+      "file": "ICLR.cc_2025_Conference/Instance-dependent Early Stopping__P42DbV2nuV.md",
+      "accept_by": "ICLR 2025",
+      "presentation_type": "Spotlight",
+      "arxiv_id": "2502.07547",
+      "doi": "10.48550/arXiv.2502.07547",
+      "cited_by": [
+        "1@2024.10.01",
+        "1@2025.01.01",
+        "3@2025.04.01",
+        "5@2025.07.01",
+        "7@2025.10.01",
+        "8@2026.01.01",
+        "11@2026.04.01",
+        "14@2026.06.06"
+      ],
+      "category": "accepted"
+    }
+  ]
+}
