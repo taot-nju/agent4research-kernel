@@ -10,8 +10,8 @@ python -m ai4research.data_pipeline.scripts_py.crawl_arxiv_daily
 # 默认爬配置文件里的所有 categories
 ```bash
 python -m ai4research.data_pipeline.scripts_py.crawl_arxiv_daily \
-  --start 2026-06-01 \
-  --end 2026-06-01
+  --start 2026-06-09 \
+  --end 2026-06-10
 ```
 
 # 只爬一个 category
