@@ -139,14 +139,47 @@ def upsert_paper(paper_data: dict, source: str, category: str = None):
 
         #     papers.update_one({"_id": paper_data["_id"]}, update_dict)
         #     print(f"♻️ Updated paper from new source: {paper_data['_id']}")
+        # else:
+        #     # 不同源：只补充缺失/空字段，避免用新来源的默认空值覆盖已有来源信息
+        #     patch = merge_missing_fields(doc, paper_data)
+
+        #     edit_log = {
+        #         "time": now_beijing_iso(),
+        #         "op": f"update from {source}" + (f" @ {category}" if category else ""),
+        #         "detail": f"fields updated: {list(patch.keys())}" if patch else "new source recorded only"
+        #     }
         else:
-            # 不同源：只补充缺失/空字段，避免用新来源的默认空值覆盖已有来源信息
+            # 不同源：只补充缺失/空字段，避免新来源的空值覆盖已有数据
             patch = merge_missing_fields(doc, paper_data)
+
+            # arXiv 预印本被正式会议/期刊录用后，更新 accepted_by
+            old_accepted_by = doc.get("accepted_by", "")
+            new_accepted_by = paper_data.get("accepted_by", "")
+
+            old_is_arxiv = (
+                isinstance(old_accepted_by, str)
+                and old_accepted_by.strip().lower().startswith("arxiv")
+            )
+
+            new_is_formal_venue = (
+                isinstance(new_accepted_by, str)
+                and new_accepted_by.strip()
+                and not new_accepted_by.strip().lower().startswith("arxiv")
+            )
+
+            if old_is_arxiv and new_is_formal_venue:
+                patch["accepted_by"] = new_accepted_by
 
             edit_log = {
                 "time": now_beijing_iso(),
-                "op": f"update from {source}" + (f" @ {category}" if category else ""),
-                "detail": f"fields updated: {list(patch.keys())}" if patch else "new source recorded only"
+                "op": f"update from {source}" + (
+                    f" @ {category}" if category else ""
+                ),
+                "detail": (
+                    f"fields updated: {list(patch.keys())}"
+                    if patch
+                    else "new source recorded only"
+                ),
             }
 
             update_ops = {

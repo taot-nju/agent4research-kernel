@@ -68,6 +68,22 @@ DEFAULT_PAPER_FIELDS = {
         "accept_type": "",  # 从 venue 中解析出的 Poster / Oral / Spotlight 等类型
     },
 
+    # AAAI 官方 Proceedings 特有字段
+    "aaai_obj": {
+        "year": "",
+        "conference_number": "",
+        "volume": "",
+        "issue": "",
+        "issue_title": "",
+        "track_type": "",
+        "track_name": "",
+        "article_id": "",
+        "article_url": "",
+        "official_pdf_url": "",
+        "doi": "",
+        "pages": "",
+        "published": "",
+    },
 
     "official_obj": {
         "venue": "",  # venue：ICML
