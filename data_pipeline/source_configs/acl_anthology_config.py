@@ -108,7 +108,176 @@ ACL_ANTHOLOGY_VOLUMES = {
                 },
             },
         },
-    }
+    },
+    "EMNLP": {
+        "venue": "EMNLP",
+        "years": {
+            2025: {
+                "main": {
+                    "volume_id": "2025.emnlp-main",
+                    "url": "https://aclanthology.org/volumes/2025.emnlp-main/",
+                    "accepted_by": "EMNLP 2025",
+                    "subtype": "Main Paper",
+                    "source": "ACL Anthology",
+                },
+                "findings": {
+                    "volume_id": "2025.findings-emnlp",
+                    "url": "https://aclanthology.org/volumes/2025.findings-emnlp/",
+                    "accepted_by": "EMNLP Findings 2025",
+                    "subtype": "Findings",
+                    "source": "ACL Anthology",
+                },
+            },
+            2024: {
+                "main": {
+                    "volume_id": "2024.emnlp-main",
+                    "url": "https://aclanthology.org/volumes/2024.emnlp-main/",
+                    "accepted_by": "EMNLP 2024",
+                    "subtype": "Main Paper",
+                    "source": "ACL Anthology",
+                },
+                "findings": {
+                    "volume_id": "2024.findings-emnlp",
+                    "url": "https://aclanthology.org/volumes/2024.findings-emnlp/",
+                    "accepted_by": "EMNLP Findings 2024",
+                    "subtype": "Findings",
+                    "source": "ACL Anthology",
+                },
+            },
+            2023: {
+                "main": {
+                    "volume_id": "2023.emnlp-main",
+                    "url": "https://aclanthology.org/volumes/2023.emnlp-main/",
+                    "accepted_by": "EMNLP 2023",
+                    "subtype": "Main Paper",
+                    "source": "ACL Anthology",
+                },
+                "findings": {
+                    "volume_id": "2023.findings-emnlp",
+                    "url": "https://aclanthology.org/volumes/2023.findings-emnlp/",
+                    "accepted_by": "EMNLP Findings 2023",
+                    "subtype": "Findings",
+                    "source": "ACL Anthology",
+                },
+            },
+            2022: {
+                "main": {
+                    "volume_id": "2022.emnlp-main",
+                    "url": "https://aclanthology.org/volumes/2022.emnlp-main/",
+                    "accepted_by": "EMNLP 2022",
+                    "subtype": "Main Paper",
+                    "source": "ACL Anthology",
+                },
+                "findings": {
+                    "volume_id": "2022.findings-emnlp",
+                    "url": "https://aclanthology.org/volumes/2022.findings-emnlp/",
+                    "accepted_by": "EMNLP Findings 2022",
+                    "subtype": "Findings",
+                    "source": "ACL Anthology",
+                },
+            },
+        },
+    },
+    "NAACL": {
+        "venue": "NAACL",
+        "years": {
+            2025: {
+                "long": {
+                    "volume_id": "2025.naacl-long",
+                    "url": "https://aclanthology.org/volumes/2025.naacl-long/",
+                    "accepted_by": "NAACL 2025",
+                    "subtype": "Long Paper",
+                    "source": "ACL Anthology",
+                },
+                "short": {
+                    "volume_id": "2025.naacl-short",
+                    "url": "https://aclanthology.org/volumes/2025.naacl-short/",
+                    "accepted_by": "NAACL 2025",
+                    "subtype": "Short Paper",
+                    "source": "ACL Anthology",
+                },
+                "findings": {
+                    "volume_id": "2025.findings-naacl",
+                    "url": "https://aclanthology.org/volumes/2025.findings-naacl/",
+                    "accepted_by": "NAACL Findings 2025",
+                    "subtype": "Findings",
+                    "source": "ACL Anthology",
+                },
+            },
+            2024: {
+                "long": {
+                    "volume_id": "2024.naacl-long",
+                    "url": "https://aclanthology.org/volumes/2024.naacl-long/",
+                    "accepted_by": "NAACL 2024",
+                    "subtype": "Long Paper",
+                    "source": "ACL Anthology",
+                },
+                "short": {
+                    "volume_id": "2024.naacl-short",
+                    "url": "https://aclanthology.org/volumes/2024.naacl-short/",
+                    "accepted_by": "NAACL 2024",
+                    "subtype": "Short Paper",
+                    "source": "ACL Anthology",
+                },
+                "findings": {
+                    "volume_id": "2024.findings-naacl",
+                    "url": "https://aclanthology.org/volumes/2024.findings-naacl/",
+                    "accepted_by": "NAACL Findings 2024",
+                    "subtype": "Findings",
+                    "source": "ACL Anthology",
+                },
+            },
+            2022: {
+                "main": {
+                    "volume_id": "2022.naacl-main",
+                    "url": "https://aclanthology.org/volumes/2022.naacl-main/",
+                    "accepted_by": "NAACL 2022",
+                    "subtype": "Main Paper",
+                    "source": "ACL Anthology",
+                },
+                "findings": {
+                    "volume_id": "2022.findings-naacl",
+                    "url": "https://aclanthology.org/volumes/2022.findings-naacl/",
+                    "accepted_by": "NAACL Findings 2022",
+                    "subtype": "Findings",
+                    "source": "ACL Anthology",
+                },
+            },
+        },
+    },
+    "COLING": {
+        "venue": "COLING",
+        "years": {
+            2025: {
+                "main": {
+                    "volume_id": "2025.coling-main",
+                    "url": "https://aclanthology.org/volumes/2025.coling-main/",
+                    "accepted_by": "COLING 2025",
+                    "subtype": "Main Paper",
+                    "source": "ACL Anthology",
+                },
+            },
+            2024: {
+                "main": {
+                    "volume_id": "2024.lrec-main",
+                    "url": "https://aclanthology.org/volumes/2024.lrec-main/",
+                    "accepted_by": "LREC-COLING 2024",
+                    "subtype": "Main Paper",
+                    "source": "ACL Anthology",
+                },
+            },
+            2022: {
+                "main": {
+                    "volume_id": "2022.coling-1",
+                    "url": "https://aclanthology.org/volumes/2022.coling-1/",
+                    "accepted_by": "COLING 2022",
+                    "subtype": "Main Paper",
+                    "source": "ACL Anthology",
+                },
+            },
+        },
+    },
+
 }
 
 

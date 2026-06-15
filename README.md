@@ -2,7 +2,7 @@
 
 `agent4research-kernel` 是一个面向 AI Research Agent 的论文数据与检索内核。
 
-本项目当前阶段的重点不是直接构建一个完整的自动科研 Agent，而是先构建一个稳定、可扩展、可追踪的论文数据底座：从 arXiv、OpenReview、PMLR、ICML 官方网站、ACL Anthology 等来源采集论文元数据，转换为统一的论文 Schema，写入 MongoDB，并支持后续的去重、多源融合、字段检查、命令行查询、PDF 处理、正文解析和科研事实抽取。
+本项目当前阶段的重点不是直接构建一个完整的自动科研 Agent，而是先构建一个稳定、可扩展、可追踪的论文数据底座：从 arXiv、OpenReview、PMLR、ICML 官方网站、AAAI 官方网站、ACL Anthology（含 ACL、EMNLP、NAACL、COLING 等）等来源采集论文元数据，转换为统一的论文 Schema，写入 MongoDB，并支持后续的去重、多源融合、字段检查、命令行查询、PDF 处理、正文解析和科研事实抽取。
 
 需要注意：
 
@@ -67,11 +67,12 @@ Research-agent data infrastructure
 | 字段检查 | 已实现 | 支持检查字段是否为空、统计字段覆盖情况 |
 | 数据库查询 | 已实现 | 支持标题模糊查询、字段精确查询、非空字段筛选 |
 | arXiv 数据源 | 已实现 | 支持按日期范围和 category 爬取论文 |
-| OpenReview 数据源 | 已实现 | 支持按会议和年份采集 OpenReview 托管论文 |
+| OpenReview 数据源 | 已实现 | 支持 ICLR、NeurIPS、ICML 等会议的 OpenReview 论文采集 |
 | PMLR 数据源 | 已实现 | 支持采集 PMLR Proceedings 中的论文元数据 |
 | ICML Official 数据源 | 已实现 | 支持从 ICML 官方页面采集论文信息 |
-| ACL Anthology 数据源 | 已实现 | 支持从 ACL Anthology 采集 ACL 体系论文信息 |
-| 操作文档 | 已部分实现 | `scripts_md/` 中已沉淀数据库、迁移和各数据源爬取文档 |
+| AAAI Official 数据源 | 已实现 | 支持从 AAAI 官方 Proceedings (OJS) 采集论文信息 |
+| ACL Anthology 数据源 | 已实现 | 支持 ACL、EMNLP、NAACL、COLING 等 ACL 体系论文采集 |
+| 操作文档 | 持续更新 | `scripts_md/` 中已沉淀数据库、迁移和各数据源爬取文档 |
 
 当前尚未完成或仍处于后续规划中的能力包括：
 
@@ -95,6 +96,7 @@ Research-agent data infrastructure
 .
 ├── data_pipeline
 │   ├── crawlers
+│   │   ├── aaai_official_crawler.py
 │   │   ├── acl_anthology_crawler.py
 │   │   ├── arxiv_crawler.py
 │   │   ├── base.py
@@ -106,7 +108,7 @@ Research-agent data infrastructure
 │   │   ├── field_checker.py
 │   │   ├── __init__.py
 │   │   ├── paper_query.py
-│   │   ├── paper_repository.py
+│   │   └── paper_repository.py
 │   ├── db_settings
 │   │   ├── init_indexes.py
 │   │   ├── __init__.py
@@ -114,6 +116,7 @@ Research-agent data infrastructure
 │   │   └── mongo_config.py
 │   ├── __init__.py
 │   ├── pipelines
+│   │   ├── aaai_official_pipeline.py
 │   │   ├── acl_anthology_pipeline.py
 │   │   ├── arxiv_daily.py
 │   │   ├── icml_official_pipeline.py
@@ -125,6 +128,7 @@ Research-agent data infrastructure
 │   │   └── paper_schema.py
 │   ├── scripts_py
 │   │   ├── check_fields.py
+│   │   ├── crawl_aaai_official.py
 │   │   ├── crawl_acl_anthology.py
 │   │   ├── crawl_arxiv_daily.py
 │   │   ├── crawl_icml_official.py
@@ -135,6 +139,7 @@ Research-agent data infrastructure
 │   │   ├── migrate_schema.py
 │   │   └── query_paper.py
 │   ├── source_configs
+│   │   ├── aaai_config.py
 │   │   ├── acl_anthology_config.py
 │   │   ├── arxiv_spec_config.py
 │   │   ├── conference_gen_config.py
@@ -157,7 +162,12 @@ Research-agent data infrastructure
     ├── 5_crawl_pmlr_by_Conf_Year.md
     ├── 6_crawl_ICML_by_Official.md
     ├── 7_crawl_NeurIPS_by_OpenReview.md
-    └── 8_crawl_ACL_by_OfficialAnthology.md
+    ├── 8_crawl_ACL_by_OfficialAnthology.md
+    ├── 9_crawl_AAAI_by_Official.md
+    ├── 10_crawl_EMNLP_by_OfficialAnthology.md
+    ├── 11_crawl_NAACL_by_OfficialAnthology.md
+    ├── 12_crawl_COLING_by_OfficialAnthology.md
+    └── All Sources Details.md
 ```
 
 各目录职责如下：
@@ -214,7 +224,7 @@ MongoDB
     -> 立即写入或更新 MongoDB
 ```
 
-这种方式相比“全部爬完后一次性写入”更适合长期增量采集，也方便中途失败后恢复。
+这种方式相比"全部爬完后一次性写入"更适合长期增量采集，也方便中途失败后恢复。
 
 ---
 
@@ -222,13 +232,25 @@ MongoDB
 
 ### 5.1 Python 环境
 
-建议使用 Python 3.10。
+建议使用 Python 3.10+。
 
 安装依赖：
 
 ```bash
 pip install -r requirements.txt
 ```
+
+当前主要依赖：
+
+| 包 | 版本 | 用途 |
+|---|---|---|
+| `arxiv` | 2.3.1 | arXiv API 论文检索 |
+| `beautifulsoup4` | 4.14.3 | HTML 页面解析 |
+| `pymongo` | 4.17.0 | MongoDB 驱动 |
+| `requests` | 2.32.5 | HTTP 请求 |
+| `rich` | 15.0.0 | 终端美化输出 |
+| `tqdm` | 4.67.3 | 进度条显示 |
+| `openreview-py` | latest | OpenReview API 访问 |
 
 ---
 
@@ -318,6 +340,7 @@ abstract
 abstract_entities
 arxiv_obj
 openreview_obj
+aaai_obj
 official_obj
 acl_anthology_obj
 seen_in_categories
@@ -442,7 +465,46 @@ edit_logs
 
 ---
 
-### 7.4 Official 会议官网字段
+### 7.4 AAAI Official 特有字段
+
+```python
+"aaai_obj": {
+    "year": "",
+    "conference_number": "",
+    "volume": "",
+    "issue": "",
+    "issue_title": "",
+    "track_type": "",
+    "track_name": "",
+    "article_id": "",
+    "article_url": "",
+    "official_pdf_url": "",
+    "doi": "",
+    "pages": "",
+    "published": ""
+}
+```
+
+说明：
+
+- `year`：AAAI 会议年份；
+- `conference_number`：会议届数，例如 `40` 表示 AAAI-40；
+- `volume` / `issue`：论文集卷/期信息；
+- `issue_title`：议题标题（如 "AAAI Technical Track on ..."）；
+- `track_type`：track 类型（如 "Technical Track"、"Special Track"）；
+- `track_name`：track 名称；
+- `article_id`：OJS 文章 ID；
+- `article_url`：AAAI proceedings 文章页面；
+- `official_pdf_url`：AAAI 官方 PDF 地址；
+- `doi`：DOI；
+- `pages`：页码；
+- `published`：发表日期。
+
+对于非 AAAI 来源论文，该字段保持默认空值。
+
+---
+
+### 7.5 Official 会议官网字段
 
 ```python
 "official_obj": {
@@ -472,7 +534,7 @@ edit_logs
 
 ---
 
-### 7.5 ACL Anthology 特有字段
+### 7.6 ACL Anthology 特有字段
 
 ```python
 "acl_anthology_obj": {
@@ -495,7 +557,7 @@ edit_logs
 
 - `anthology_id`：ACL Anthology 论文 ID，例如 `2025.acl-long.1`；
 - `volume_id`：ACL Anthology volume ID，例如 `2025.acl-long`；
-- `venue`：会议或期刊名称；
+- `venue`：会议或期刊名称（`ACL`、`EMNLP`、`NAACL`、`COLING` 等）；
 - `year`：年份；
 - `subtype`：论文类型，例如 `Long Paper`、`Short Paper`、`Findings`；
 - `paper_url`：ACL Anthology 页面；
@@ -509,7 +571,7 @@ edit_logs
 
 ---
 
-### 7.6 来源追踪字段
+### 7.7 来源追踪字段
 
 ```python
 "seen_in_sources": []
@@ -542,7 +604,7 @@ edit_logs
 
 ---
 
-### 7.7 接收 venue 字段
+### 7.8 接收 venue 字段
 
 ```python
 "accepted_by": ""
@@ -566,7 +628,7 @@ edit_logs
 
 ---
 
-### 7.8 URL 字段
+### 7.9 URL 字段
 
 ```python
 "base_urls": {}
@@ -583,6 +645,8 @@ edit_logs
     "openreview_pdf_url": "https://openreview.net/pdf?id=xxxx",
     "official_url": "https://icml.cc/virtual/2026/poster/xxxxx",
     "official_pdf_url": "",
+    "aaai_url": "https://ojs.aaai.org/index.php/AAAI/article/view/xxxxx",
+    "aaai_pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/view/xxxxx/pdf",
     "acl_anthology_url": "https://aclanthology.org/2025.acl-long.1/",
     "acl_anthology_pdf_url": "https://aclanthology.org/2025.acl-long.1.pdf"
 }
@@ -603,7 +667,7 @@ edit_logs
 
 ---
 
-### 7.9 引文与参考文献字段
+### 7.10 引文与参考文献字段
 
 ```python
 "cite_numbers": []
@@ -631,7 +695,7 @@ edit_logs
 
 ---
 
-### 7.10 论文内容分析字段
+### 7.11 论文内容分析字段
 
 ```python
 "tags": []
@@ -657,7 +721,7 @@ edit_logs
 
 ---
 
-### 7.11 论文实验四要素字段
+### 7.12 论文实验四要素字段
 
 ```python
 "pipeline": ""
@@ -684,7 +748,7 @@ edit_logs
 
 ---
 
-### 7.12 处理状态与本地文件路径
+### 7.13 处理状态与本地文件路径
 
 处理状态字段：
 
@@ -726,7 +790,7 @@ MongoDB 中只保存文件路径和处理状态。
 
 ---
 
-### 7.13 编辑日志字段
+### 7.14 编辑日志字段
 
 ```python
 "edit_logs": []
@@ -881,7 +945,7 @@ python -m ai4research.data_pipeline.scripts_py.crawl_arxiv_daily \
 
 ### 9.2 OpenReview
 
-OpenReview 数据源主要用于采集托管在 OpenReview 上的会议论文，例如 ICLR、NeurIPS 等。
+OpenReview 数据源用于采集托管在 OpenReview 上的会议论文，目前已覆盖 **ICLR**（2022–2026）、**NeurIPS**（2022–2025）和 **ICML**（2022–2025 via OpenReview）。
 
 相关文件：
 
@@ -905,7 +969,7 @@ scripts_md/7_crawl_NeurIPS_by_OpenReview.md
 - 一篇论文爬取完成后立即写入 MongoDB；
 - 支持重复爬取去重和字段补全。
 
-运行示例：
+运行示例（ICLR）：
 
 ```bash
 python -m ai4research.data_pipeline.scripts_py.crawl_openreview \
@@ -922,7 +986,7 @@ python -m ai4research.data_pipeline.scripts_py.crawl_openreview \
   --year 2026
 ```
 
-NeurIPS 也可以通过 OpenReview 数据源采集，具体流程可参考：
+NeurIPS、ICML 也可以通过相同方式采集，具体可参考：
 
 ```text
 scripts_md/7_crawl_NeurIPS_by_OpenReview.md
@@ -1005,9 +1069,58 @@ scripts_md/6_crawl_ICML_by_Official.md
 
 ---
 
-### 9.5 ACL Anthology
+### 9.5 AAAI Official
 
-ACL Anthology 数据源用于采集 ACL 体系论文，例如 ACL、EMNLP、NAACL、Findings、TACL 等。
+AAAI Official 数据源用于从 AAAI 官方 Proceedings（基于 OJS 平台）采集 AAAI 主会论文信息，当前覆盖 AAAI 2022–2026。
+
+相关文件：
+
+```text
+data_pipeline/source_configs/aaai_config.py
+data_pipeline/crawlers/aaai_official_crawler.py
+data_pipeline/pipelines/aaai_official_pipeline.py
+data_pipeline/scripts_py/crawl_aaai_official.py
+scripts_md/9_crawl_AAAI_by_Official.md
+```
+
+当前支持：
+
+- 从 AAAI OJS proceedings 页面采集论文；
+- 自动遍历年度页面 → issue 列表 → section 文章列表；
+- 按 `INCLUDE_ISSUE_KEYWORDS` 过滤，只采集 Technical Tracks 和 Special Tracks；
+- 自动排除 IAAI、EAAI、Student Abstracts、Doctoral Consortium 等非研究论文类别；
+- 解析 article ID、track type、track name、DOI、页码、发表日期等字段；
+- 解析 official PDF 链接；
+- 写入 `aaai_obj`；
+- 支持 `--year` 和 `--max-results` 参数；
+- 支持重复爬取去重和字段补全。
+
+运行示例（小规模测试）：
+
+```bash
+python -m ai4research.data_pipeline.scripts_py.crawl_aaai_official \
+  --year 2026 \
+  --max-results 3
+```
+
+正式全量爬取：
+
+```bash
+python -m ai4research.data_pipeline.scripts_py.crawl_aaai_official \
+  --year 2026
+```
+
+对应操作文档：
+
+```text
+scripts_md/9_crawl_AAAI_by_Official.md
+```
+
+---
+
+### 9.6 ACL Anthology（含 ACL / EMNLP / NAACL / COLING）
+
+ACL Anthology 数据源用于采集 ACL 体系论文，目前已覆盖 **ACL**、**EMNLP**、**NAACL**、**COLING** 等多个会议，支持按 venue、year、subtype 灵活爬取。
 
 相关文件：
 
@@ -1017,30 +1130,76 @@ data_pipeline/crawlers/acl_anthology_crawler.py
 data_pipeline/pipelines/acl_anthology_pipeline.py
 data_pipeline/scripts_py/crawl_acl_anthology.py
 scripts_md/8_crawl_ACL_by_OfficialAnthology.md
+scripts_md/10_crawl_EMNLP_by_OfficialAnthology.md
+scripts_md/11_crawl_NAACL_by_OfficialAnthology.md
+scripts_md/12_crawl_COLING_by_OfficialAnthology.md
 ```
 
 当前支持：
 
 - 从 ACL Anthology 采集论文元数据；
-- 解析 anthology ID；
-- 解析 volume ID；
-- 解析 venue、year、subtype；
+- 解析 anthology ID、volume ID；
+- 解析 venue、year、subtype（`long` / `short` / `main` / `findings` 等）；
 - 解析 paper URL、PDF URL、BibTeX URL；
 - 解析 DOI、页码、发表日期等字段；
+- 支持 `--delay-seconds` 控制请求间隔；
+- 支持 `--max-results` 调试参数；
 - 写入 `acl_anthology_obj`；
 - 支持重复爬取去重和字段补全。
 
-运行方式请优先查看脚本帮助：
+运行示例（ACL 2025 Long）：
 
 ```bash
-python -m ai4research.data_pipeline.scripts_py.crawl_acl_anthology --help
+python -m ai4research.data_pipeline.scripts_py.crawl_acl_anthology \
+  --venue ACL \
+  --year 2025 \
+  --subtype long \
+  --delay-seconds 0.5
 ```
 
-对应操作文档：
+运行示例（EMNLP 2025 main + findings）：
+
+```bash
+# EMNLP 2025 main
+python -m ai4research.data_pipeline.scripts_py.crawl_acl_anthology \
+  --venue EMNLP \
+  --year 2025 \
+  --subtype main \
+  --delay-seconds 0.5
+
+# EMNLP 2025 findings
+python -m ai4research.data_pipeline.scripts_py.crawl_acl_anthology \
+  --venue EMNLP \
+  --year 2025 \
+  --subtype findings \
+  --delay-seconds 0.5
+```
+
+NAACL、COLING 同理，只需修改 `--venue`、`--year`、`--subtype` 参数，详见对应操作文档。
+
+---
+
+### 9.7 数据源覆盖总览
+
+详细的数据源覆盖清单（含各会议各年份的爬取状态）请参考：
 
 ```text
-scripts_md/8_crawl_ACL_by_OfficialAnthology.md
+scripts_md/All Sources Details.md
 ```
+
+当前已覆盖的主要会议/来源一览：
+
+| 来源 | 覆盖年份 | 采集方式 |
+|---|---|---|
+| arXiv | 日常增量 | arXiv API |
+| ICLR | 2022–2026 | OpenReview |
+| NeurIPS | 2022–2025 | OpenReview |
+| ICML | 2022–2025 | OpenReview + PMLR + Official |
+| AAAI | 2022–2026 | AAAI Official (OJS) |
+| ACL | 2022–2025 | ACL Anthology |
+| EMNLP | 2022–2025 | ACL Anthology |
+| NAACL | 2022, 2024–2025 | ACL Anthology |
+| COLING | 2022, 2024–2025 | ACL Anthology |
 
 ---
 
@@ -1125,6 +1284,15 @@ python -m ai4research.data_pipeline.scripts_py.query_paper \
 python -m ai4research.data_pipeline.scripts_py.query_paper \
   --field acl_anthology_obj.venue \
   --value "ACL" \
+  --brief
+```
+
+查询 AAAI 字段：
+
+```bash
+python -m ai4research.data_pipeline.scripts_py.query_paper \
+  --field aaai_obj.year \
+  --value "2026" \
   --brief
 ```
 
@@ -1255,7 +1423,7 @@ python -m ai4research.data_pipeline.scripts_py.crawl_openreview \
 示例已验证能力包括：
 
 ```text
-ICLR accepted papers filtering
+ICLR / NeurIPS / ICML accepted papers filtering
 Poster / Oral / Spotlight accept type parsing
 OpenReview forum URL / PDF URL extraction
 ```
@@ -1276,21 +1444,59 @@ scripts_md/6_crawl_ICML_by_Official.md
 
 ---
 
-### 12.6 爬取 ACL Anthology
+### 12.6 爬取 AAAI Official
 
 ```bash
-python -m ai4research.data_pipeline.scripts_py.crawl_acl_anthology --help
+# 小规模测试
+python -m ai4research.data_pipeline.scripts_py.crawl_aaai_official \
+  --year 2026 \
+  --max-results 3
+
+# 全量爬取
+python -m ai4research.data_pipeline.scripts_py.crawl_aaai_official \
+  --year 2026
+```
+
+对应文档：
+
+```text
+scripts_md/9_crawl_AAAI_by_Official.md
+```
+
+---
+
+### 12.7 爬取 ACL Anthology（ACL / EMNLP / NAACL / COLING）
+
+```bash
+# ACL 2025 Long
+python -m ai4research.data_pipeline.scripts_py.crawl_acl_anthology \
+  --venue ACL --year 2025 --subtype long --delay-seconds 0.5
+
+# EMNLP 2025 main
+python -m ai4research.data_pipeline.scripts_py.crawl_acl_anthology \
+  --venue EMNLP --year 2025 --subtype main --delay-seconds 0.5
+
+# NAACL 2025 long
+python -m ai4research.data_pipeline.scripts_py.crawl_acl_anthology \
+  --venue NAACL --year 2025 --subtype long --delay-seconds 0.5
+
+# COLING 2025 main
+python -m ai4research.data_pipeline.scripts_py.crawl_acl_anthology \
+  --venue COLING --year 2025 --subtype main --delay-seconds 0.5
 ```
 
 对应文档：
 
 ```text
 scripts_md/8_crawl_ACL_by_OfficialAnthology.md
+scripts_md/10_crawl_EMNLP_by_OfficialAnthology.md
+scripts_md/11_crawl_NAACL_by_OfficialAnthology.md
+scripts_md/12_crawl_COLING_by_OfficialAnthology.md
 ```
 
 ---
 
-### 12.7 查询数据库记录
+### 12.8 查询数据库记录
 
 ```bash
 python -m ai4research.data_pipeline.scripts_py.query_paper \
@@ -1316,11 +1522,16 @@ python -m ai4research.data_pipeline.scripts_py.query_paper \
 | `1_init_database.md` | 初始化 MongoDB 与索引 |
 | `2_migrate_schema.md` | Schema 迁移 |
 | `3_crawl_arxiv_daily.md` | arXiv 日常增量爬取 |
-| `4_crawl_openreview_by_Conf_Year.md` | 按会议和年份爬取 OpenReview |
+| `4_crawl_openreview_by_Conf_Year.md` | 按会议和年份爬取 OpenReview（ICLR 等） |
 | `5_crawl_pmlr_by_Conf_Year.md` | 按会议和年份爬取 PMLR |
 | `6_crawl_ICML_by_Official.md` | 从 ICML 官方网站爬取论文 |
 | `7_crawl_NeurIPS_by_OpenReview.md` | 通过 OpenReview 爬取 NeurIPS |
-| `8_crawl_ACL_by_OfficialAnthology.md` | 从 ACL Anthology 官方数据源爬取论文 |
+| `8_crawl_ACL_by_OfficialAnthology.md` | 从 ACL Anthology 爬取 ACL 论文 |
+| `9_crawl_AAAI_by_Official.md` | 从 AAAI 官方 Proceedings 爬取论文 |
+| `10_crawl_EMNLP_by_OfficialAnthology.md` | 从 ACL Anthology 爬取 EMNLP 论文 |
+| `11_crawl_NAACL_by_OfficialAnthology.md` | 从 ACL Anthology 爬取 NAACL 论文 |
+| `12_crawl_COLING_by_OfficialAnthology.md` | 从 ACL Anthology 爬取 COLING 论文 |
+| `All Sources Details.md` | 所有数据源覆盖清单（含各会议各年份爬取状态） |
 
 建议后续每新增一个数据源，都同步新增一个 `scripts_md/` 操作文档。
 
@@ -1347,13 +1558,15 @@ scripts_md/n_crawl_XXX.md
 2. 写最小 crawler，只抓 1 年、1 页或少量样例；
 3. 打印检查原始字段；
 4. 转换为 DEFAULT_PAPER_FIELDS 兼容结构；
-5. 写 pipeline；
-6. 写命令行 script；
-7. 小规模测试；
-8. 完整爬取；
-9. 用 query_paper.py 和 check_fields.py 检查入库质量；
-10. 写 scripts_md 操作文档；
-11. git commit 固化当前阶段。
+5. 如果数据源有特有字段，在 paper_schema.py 中新增对应的 *_obj 字段；
+6. 写 pipeline；
+7. 写命令行 script；
+8. 小规模测试；
+9. 完整爬取；
+10. 用 query_paper.py 和 check_fields.py 检查入库质量；
+11. 更新 All Sources Details.md 覆盖清单；
+12. 写 scripts_md 操作文档；
+13. git commit 固化当前阶段。
 ```
 
 ---
@@ -1369,9 +1582,11 @@ arXiv 2026
 ICLR 2026
 NeurIPS 2025
 ICML 2026
+AAAI 2026
 ACL 2025
 EMNLP 2025
 NAACL 2025
+COLING 2025
 ```
 
 如果论文同时存在 arXiv 和正式会议版本，建议以正式会议或期刊为主。
@@ -1387,8 +1602,10 @@ NAACL 2025
 ["OpenReview"]
 ["PMLR"]
 ["ICML 2026"]
+["AAAI 2026"]
 ["ACL Anthology"]
 ["arXiv", "ICLR 2026"]
+["OpenReview", "AAAI 2026"]
 ```
 
 ---
@@ -1403,8 +1620,9 @@ NAACL 2025
 ["cs.AI", "cs.CL"]
 ["ICLR 2026 Poster"]
 ["ICLR 2026 Oral"]
+["AAAI Technical Track"]
 ["ACL Long Paper"]
-["Findings"]
+["EMNLP Findings"]
 ```
 
 ---
@@ -1421,6 +1639,8 @@ NAACL 2025
     "openreview_pdf_url": "",
     "official_url": "",
     "official_pdf_url": "",
+    "aaai_url": "",
+    "aaai_pdf_url": "",
     "acl_anthology_url": "",
     "acl_anthology_pdf_url": ""
 }
@@ -1457,14 +1677,15 @@ NAACL 2025
 6. PDF 下载、文本抽取、OCR 和 JSON 结构化仍是后续任务；
 7. 不同会议官网结构可能随年份变化，需要单独适配；
 8. OpenReview 不同会议、不同年份的 invitation、venue 字段可能不同，需要分别处理；
-9. PMLR、ICML Official、ACL Anthology 等数据源的字段覆盖情况需要通过 `check_fields.py` 持续检查；
-10. 所有命令行脚本的最新参数应以 `--help` 输出和 `scripts_md/` 文档为准。
+9. AAAI 2022 使用旧版 WordPress 页面结构，与 2023–2026 的 OJS 平台不同；
+10. PMLR、ICML Official、ACL Anthology 等数据源的字段覆盖情况需要通过 `check_fields.py` 持续检查；
+11. 所有命令行脚本的最新参数应以 `--help` 输出和 `scripts_md/` 文档为准。
 
 ---
 
 ## 17. Roadmap
 
-### 阶段 1：多源元数据采集
+### 阶段 1：多源元数据采集 ✅（基本完成）
 
 目标：
 
@@ -1472,14 +1693,19 @@ NAACL 2025
 稳定采集 AI 论文元数据，并统一入库。
 ```
 
-重点：
+已覆盖：
 
 - arXiv 日常增量；
-- OpenReview ICLR / NeurIPS；
+- OpenReview（ICLR / NeurIPS / ICML）；
 - PMLR Proceedings；
 - ICML Official；
-- ACL Anthology；
-- 后续扩展 AAAI、EMNLP、NAACL、KDD、SIGIR、TACL 等。
+- AAAI Official；
+- ACL Anthology（ACL / EMNLP / NAACL / COLING）；
+
+后续扩展：
+
+- 其他 AI 会议（KDD、SIGIR、IJCAI、CVPR、ICCV 等）；
+- 期刊论文（JMLR、TACL 等）。
 
 ---
 
@@ -1578,7 +1804,7 @@ NAACL 2025
 
 本项目的亮点不是单个爬虫，而是逐步形成了一个面向 AI 论文的结构化数据内核：
 
-1. **多源采集**：支持 arXiv、OpenReview、PMLR、ICML Official、ACL Anthology 等 AI 论文核心来源；
+1. **多源采集**：支持 arXiv、OpenReview（ICLR/NeurIPS/ICML）、PMLR、ICML Official、AAAI Official、ACL Anthology（ACL/EMNLP/NAACL/COLING）等 AI 论文核心来源；
 2. **统一建模**：使用统一 Schema 表示不同来源的论文记录；
 3. **多源融合**：同一篇论文可以合并来自不同来源的信息；
 4. **可追踪更新**：通过 `seen_in_sources`、`seen_in_categories`、`edit_logs` 记录数据来源与更新历史；
@@ -1590,8 +1816,8 @@ NAACL 2025
 一句话概括：
 
 ```text
-别人多数是在做“找论文、读论文、写综述”；
-本项目要做的是“把 AI 论文变成可查询、可分析、可推理的结构化科研知识库”。
+别人多数是在做"找论文、读论文、写综述"；
+本项目要做的是"把 AI 论文变成可查询、可分析、可推理的结构化科研知识库"。
 ```
 
 ---
@@ -1633,11 +1859,8 @@ python -m ai4research.data_pipeline.scripts_py.migrate_schema
 python -m ai4research.data_pipeline.scripts_py.crawl_arxiv_daily \
   --start 2026-06-01 \
   --end 2026-06-01
-```
 
-指定 arXiv category：
-
-```bash
+# 指定 category
 python -m ai4research.data_pipeline.scripts_py.crawl_arxiv_daily \
   --start 2026-06-01 \
   --end 2026-06-01 \
@@ -1647,52 +1870,63 @@ python -m ai4research.data_pipeline.scripts_py.crawl_arxiv_daily \
 爬取 OpenReview：
 
 ```bash
+# ICLR
 python -m ai4research.data_pipeline.scripts_py.crawl_openreview \
-  --venue ICLR \
-  --year 2026
+  --venue ICLR --year 2026
+
+# NeurIPS
+python -m ai4research.data_pipeline.scripts_py.crawl_openreview \
+  --venue NeurIPS --year 2025
 ```
 
-查看 PMLR 参数：
+爬取 AAAI Official：
+
+```bash
+python -m ai4research.data_pipeline.scripts_py.crawl_aaai_official --year 2026
+```
+
+爬取 ACL Anthology：
+
+```bash
+# ACL
+python -m ai4research.data_pipeline.scripts_py.crawl_acl_anthology \
+  --venue ACL --year 2025 --subtype long --delay-seconds 0.5
+
+# EMNLP
+python -m ai4research.data_pipeline.scripts_py.crawl_acl_anthology \
+  --venue EMNLP --year 2025 --subtype main --delay-seconds 0.5
+
+# NAACL
+python -m ai4research.data_pipeline.scripts_py.crawl_acl_anthology \
+  --venue NAACL --year 2025 --subtype long --delay-seconds 0.5
+
+# COLING
+python -m ai4research.data_pipeline.scripts_py.crawl_acl_anthology \
+  --venue COLING --year 2025 --subtype main --delay-seconds 0.5
+```
+
+查看其他爬虫参数：
 
 ```bash
 python -m ai4research.data_pipeline.scripts_py.crawl_pmlr --help
-```
-
-查看 ICML Official 参数：
-
-```bash
 python -m ai4research.data_pipeline.scripts_py.crawl_icml_official --help
-```
-
-查看 ACL Anthology 参数：
-
-```bash
 python -m ai4research.data_pipeline.scripts_py.crawl_acl_anthology --help
 ```
 
 查询论文：
 
 ```bash
+# 模糊查询
 python -m ai4research.data_pipeline.scripts_py.query_paper \
-  --title "your paper title" \
-  --brief
-```
+  --title "your paper title" --brief
 
-查询字段非空：
-
-```bash
+# 非空字段查询
 python -m ai4research.data_pipeline.scripts_py.query_paper \
-  --non-empty abstract \
-  --brief
-```
+  --non-empty abstract --brief
 
-按字段精确查询：
-
-```bash
+# 精确字段查询
 python -m ai4research.data_pipeline.scripts_py.query_paper \
-  --field accepted_by \
-  --value "ICLR 2026" \
-  --brief
+  --field accepted_by --value "ICLR 2026" --brief
 ```
 
 检查字段：
@@ -1705,24 +1939,25 @@ python -m ai4research.data_pipeline.scripts_py.check_fields --help
 
 ## 21. 当前项目状态总结
 
-当前项目已经完成了从“单一 arXiv 爬虫”到“多源论文数据底座”的初步升级。
+当前项目已经完成了从"单一 arXiv 爬虫"到"多源论文数据底座"的全面升级。
 
 目前主干能力包括：
 
 ```text
 MongoDB 数据库
-统一论文 Schema
+统一论文 Schema（含 arXiv / OpenReview / AAAI / Official / ACL Anthology 子结构）
 索引初始化
 Schema 迁移
 upsert 多源融合
 字段检查
 命令行查询
 arXiv 增量爬取
-OpenReview 会议论文采集
+OpenReview 会议论文采集（ICLR / NeurIPS / ICML）
 PMLR Proceedings 论文采集
 ICML Official 论文采集
-ACL Anthology 论文采集
-操作文档沉淀
+AAAI Official 论文采集（2022–2026）
+ACL Anthology 论文采集（ACL / EMNLP / NAACL / COLING，各 2–4 年）
+操作文档沉淀（13 篇 + 覆盖清单）
 ```
 
 下一阶段最值得推进的是：
