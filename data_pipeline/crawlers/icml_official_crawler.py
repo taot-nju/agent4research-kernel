@@ -226,7 +226,7 @@ class ICMLOfficialCrawler(BaseCrawler):
 
         paper["more_urls"] = {}
 
-        paper["official_obj"] = {
+        paper["icml_official_obj"] = {
             "venue": self.venue,
             "year": str(self.year),
             "event_id": self._parse_event_id(official_url),
@@ -240,6 +240,6 @@ class ICMLOfficialCrawler(BaseCrawler):
         paper["tags"] = []
         paper["pipeline"] = ""
 
-        # 暂时不新增 official_obj schema，第一版先放在已有字段里。
-        # 后续如果官网源稳定，再考虑 official_obj。
+        # 暂时不新增 icml_official_obj schema，第一版先放在已有字段里。
+        # 后续如果官网源稳定，再考虑 icml_official_obj 作为单独 schema，并迁移相关字段过去。
         return paper

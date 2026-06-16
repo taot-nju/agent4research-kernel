@@ -85,7 +85,7 @@ DEFAULT_PAPER_FIELDS = {
         "published": "",
     },
 
-    "official_obj": {
+    "icml_official_obj": {
         "venue": "",  # venue：ICML
         "year": "",  # year：2026
         "event_id": "",  # event_id：64869
