@@ -43,7 +43,7 @@ def merge_missing_fields(old: dict, new: dict, prefix: str = "") -> dict:
 def upsert_paper(paper_data: dict, source: str, category: str = None):
     """
     upsert论文，自动区分全新/已有/不同来源更新
-    
+
     :param paper_data: 单篇论文的字典
     :param source: 数据来源，例如 "arXiv", "NeurIPS 2024"
     :param category: arXiv分类（cs.AI, cs.CL,...），非arXiv可不传
@@ -198,11 +198,18 @@ def upsert_paper(paper_data: dict, source: str, category: str = None):
 
     print("[red]One record processed!")
 
-# 修改了 session 的 schema migration 方法
 def migrate_schema():
     """
-    遍历整个 papers 集合，将缺失字段补全，升级 _schema_version
-    仅手动/定期执行
+    遍历整个 papers 集合，执行 Schema 迁移：
+
+    v1 -> v2:
+    - 将旧字段 official_obj 重命名为 icml_official_obj
+
+    通用处理：
+    - 补齐 DEFAULT_PAPER_FIELDS 中缺失的顶层字段
+    - 更新 _schema_version
+
+    该方法仅手动/定期执行。
     """
 
     client = MongoDBClient._client
@@ -212,6 +219,33 @@ def migrate_schema():
 
     papers = MongoDBClient.get_collection()
 
+    # ------------------------------------------------------------------
+    # Schema v1 -> v2
+    # 先重命名旧字段，必须在补齐默认字段之前执行。
+    #
+    # 过滤条件保证：
+    # 1. 只有存在 official_obj 的记录才会处理；
+    # 2. 如果目标字段 icml_official_obj 已经存在，则不会覆盖。
+    # 因此该操作可以重复执行。
+    # ------------------------------------------------------------------
+    rename_result = papers.update_many(
+        {
+            "official_obj": {"$exists": True},
+            "icml_official_obj": {"$exists": False},
+        },
+        {
+            "$rename": {
+                "official_obj": "icml_official_obj"
+            }
+        }
+    )
+
+    print(
+        "🔹 Schema v1 -> v2 field migration finished. "
+        f"{rename_result.modified_count} documents renamed: "
+        "official_obj -> icml_official_obj"
+    )
+
     batch_size = 100
     count = 0
 
@@ -219,26 +253,81 @@ def migrate_schema():
         cursor = papers.find(
             {},
             no_cursor_timeout=True,
-            session = session
+            session=session
         ).batch_size(batch_size)
 
-        for doc in cursor:
-            update_dict = {}
+        try:
+            for doc in cursor:
+                update_dict = {}
 
-            for key, val in DEFAULT_PAPER_FIELDS.items():
-                if key not in doc:
-                    update_dict[key] = val
+                # 补齐当前 Schema 中缺失的顶层字段
+                for key, val in DEFAULT_PAPER_FIELDS.items():
+                    if key not in doc:
+                        update_dict[key] = val
 
-            doc_version = doc.get("_schema_version", 0)
-            if doc_version < CURRENT_SCHEMA_VERSION:                
-                update_dict["_schema_version"] = CURRENT_SCHEMA_VERSION
+                # 更新 Schema 版本号
+                doc_version = doc.get("_schema_version", 0)
 
-            if update_dict:
-                papers.update_one(
-                    {"_id": doc["_id"]},
-                    {"$set": update_dict},
-                    session = session
-                )
-                count += 1
+                if doc_version < CURRENT_SCHEMA_VERSION:
+                    update_dict["_schema_version"] = CURRENT_SCHEMA_VERSION
 
-    print(f"🔹 Schema migration finished. {count} documents upgraded to v{CURRENT_SCHEMA_VERSION}")
+                if update_dict:
+                    papers.update_one(
+                        {"_id": doc["_id"]},
+                        {"$set": update_dict},
+                        session=session
+                    )
+                    count += 1
+        finally:
+            cursor.close()
+
+    print(
+        f"🔹 Schema migration finished. "
+        f"{count} documents upgraded to v{CURRENT_SCHEMA_VERSION}"
+    )
+
+
+# # 修改了 session 的 schema migration 方法
+# def migrate_schema():
+#     """
+#     遍历整个 papers 集合，将缺失字段补全，升级 _schema_version
+#     仅手动/定期执行
+#     """
+
+#     client = MongoDBClient._client
+
+#     if client is None:
+#         client = MongoDBClient.get_collection().database.client
+
+#     papers = MongoDBClient.get_collection()
+
+#     batch_size = 100
+#     count = 0
+
+#     with client.start_session() as session:
+#         cursor = papers.find(
+#             {},
+#             no_cursor_timeout=True,
+#             session = session
+#         ).batch_size(batch_size)
+
+#         for doc in cursor:
+#             update_dict = {}
+
+#             for key, val in DEFAULT_PAPER_FIELDS.items():
+#                 if key not in doc:
+#                     update_dict[key] = val
+
+#             doc_version = doc.get("_schema_version", 0)
+#             if doc_version < CURRENT_SCHEMA_VERSION:
+#                 update_dict["_schema_version"] = CURRENT_SCHEMA_VERSION
+
+#             if update_dict:
+#                 papers.update_one(
+#                     {"_id": doc["_id"]},
+#                     {"$set": update_dict},
+#                     session = session
+#                 )
+#                 count += 1
+
+#     print(f"🔹 Schema migration finished. {count} documents upgraded to v{CURRENT_SCHEMA_VERSION}")

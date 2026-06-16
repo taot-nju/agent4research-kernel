@@ -10,7 +10,7 @@
 # -----------------------------------------------------------------------------------------------------------------------
 
 # 当前 schema 版本号（非常重要：用于标记当前的Schema更新了多少版）
-CURRENT_SCHEMA_VERSION = 1
+CURRENT_SCHEMA_VERSION = 3
 
 
 # 默认字段结构：以后可能会随着分析的深入，增加更多自定义字段
@@ -117,7 +117,7 @@ DEFAULT_PAPER_FIELDS = {
     # 如果一篇论文只在arXiv的cs.CL分类下出现过，那么这个字段就记录["cs.CL"]。
     "seen_in_categories": [], # 🟢
 
- 
+
     # 所有刊物（arXiv, conference, journal）都可以有的字段：这些字段对于所有类型的论文记录都是适用的，无论是arXiv预印本还是会议/期刊论文都可以使用这些字段来记录相关信息。
     "accepted_by": "", # 🟢被哪个会议或期刊接受，例如："ICLR 2026"；如果是arXiv预印本，则该字段为"arXiv 2026"；如果一篇论文既在arXiv上出现过，也被ICLR 2026接受了，那么该字段就记录"ICLR 2026"（以会议/期刊为主，覆盖掉arXiv的记录）。
 
@@ -149,11 +149,11 @@ DEFAULT_PAPER_FIELDS = {
     "baselines": [],  # 🔴 论文的对比方法
     "benchmarks": [],  # 🔴 论文的评测数据集
     "metrics": [],  # 🔴 论文的评测指标
-    
+
 
     # 标记论文的某些字段是否已经处理完成，例如：目录是否已经提取完成，参考文献是否已经提取完成，PDF是否已经下载完成，文本是否已经提取完成，等等；这些字段的作用是为了避免重复处理同一篇论文的同一项内容，从而提高效率。
     "processing_status": {
-        "toc_extracted": False,  
+        "toc_extracted": False,
         "references_extracted": False,
 
         "pdf_downloaded": False,  # 该字段标记论文的PDF是否已经成功下载
@@ -161,9 +161,110 @@ DEFAULT_PAPER_FIELDS = {
         "json_extracted": False
     },
     "local_txt_path": "",  # 考虑到直接用MongoDB存储大量文本数据可能会导致性能问题，因此我们选择将文本数据存储在本地文件系统中，并在MongoDB中记录对应的文件路径；如果txt_extracted为True，则local_txt_path必然不为空。
-    "local_pdf_path": "",  
+    "local_pdf_path": "",
     "local_json_path": "",
 
+
+    "pdf_asset": {
+        # pending：尚未下载
+        # running：某个 Worker 正在下载
+        # success：已经下载并通过校验
+        # failed：下载失败，可以重试
+        # unavailable：目前没有可用 PDF URL
+        "status": "pending",
+
+        # 实际成功下载时使用的来源和地址。
+        # 一篇论文可能存在会议版、OpenReview、arXiv 等多个候选地址。
+        "source": "",
+        "source_url": "",
+        # 实际下载时，URL 可能经过重定向。
+        "final_url": "",
+
+        # 只保存相对于 AI4RESEARCH_DATA_ROOT 的路径，
+        # 不保存 /home/tao/... 这样的机器绝对路径。
+        "relative_path": "",
+
+        # 文件完整性信息。
+        "size_bytes": 0,
+        "sha256": "",
+
+        # 下载任务执行信息。
+        "attempts": 0,
+        "last_error": "",
+        "http_status": None,
+
+        # 时间字段由 Python datetime 写入 MongoDB，
+        # 在 MongoDB 中保存为 BSON Date，统一使用 UTC 时间。
+        # 默认值为 None，尚未执行时保持为空。
+        "started_at": None,
+
+        # 最近一次检查或尝试下载的时间。
+        # 对 unavailable 状态也有意义，因为它只是“当前暂无 URL”，不是永久没有。
+        "last_checked_at": None,
+
+        # 失败后允许再次尝试的时间，用于指数退避，避免反复请求来源网站。
+        "next_retry_at": None,
+
+
+        "downloaded_at": None,
+        "updated_at": None,
+
+        # 用于并发任务领取与进程意外退出后的恢复。
+        "worker_id": "",
+        "lease_until": None,
+    },
+
+    "txt_asset": {
+        # pending：等待文本提取
+        # running：某个 Worker 正在处理
+        # success：文本已经生成并通过基本质量检查
+        # failed：处理失败，可以重试
+        # blocked：当前没有可用 PDF，暂时无法处理
+        # stale：PDF 已变化，现有 TXT 需要重新生成
+        "status": "pending",
+
+        # 文本文件相对于 AI4RESEARCH_DATA_ROOT 的路径。
+        "relative_path": "",
+
+        # native：直接从 PDF 文本层提取
+        # ocr：通过 OCR 获得
+        "method": "",
+
+        # 实际使用的工具，例如 pymupdf、pdfminer、grobid、paddleocr。
+        "extractor": "",
+        "extractor_version": "",
+
+        # 生成该 TXT 时对应的 PDF 哈希。
+        # 若它与 pdf_asset.sha256 不一致，应将 TXT 标记为 stale。
+        "source_pdf_sha256": "",
+
+        # 文本结果的基本统计与质量信息。
+        "size_bytes": 0,
+        "char_count": 0,
+        "page_count": 0,
+        "quality_score": None,
+
+        # 是否尝试过原生文本提取，以及最终是否使用了 OCR。
+        "native_extraction_attempted": False,
+        "ocr_used": False,
+
+        # 任务执行与错误信息。
+        "attempts": 0,
+        "last_error": "",
+
+        # 时间字段由 Python datetime 写入 MongoDB，
+        # 在 MongoDB 中保存为 BSON Date，统一使用 UTC 时间。
+        # 默认值为 None，尚未执行时保持为空。
+        "started_at": None,
+        "last_checked_at": None,
+        "next_retry_at": None,
+        "extracted_at": None,
+        "updated_at": None,
+
+        # 并发任务领取与异常恢复。
+        "worker_id": "",
+        "lease_until": None,
+    },
 
     "seen_in_sources": [],  # 记录一篇论文在哪些来源中出现过，例如：arXiv, ICLR, NeurIPS, etc.；如果一篇论文既在arXiv上出现过，也被ICLR 2026接受了，那么这个字段就记录["arXiv", "ICLR 2026"]。
 
@@ -175,5 +276,3 @@ DEFAULT_PAPER_FIELDS = {
     #     "detail": "insert paper metadata"
     # }
 }
-
-
