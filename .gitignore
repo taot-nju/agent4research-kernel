@@ -40,6 +40,9 @@ outputs/
 mongodb-data/
 mongo-data/
 
+# field_processing_pipeline 本地缓存（PDF / TEI / 句子数组 / LLM 响应）
+field_processing_pipeline/cache/store/
+
 # OS files
 .DS_Store
 Thumbs.db
