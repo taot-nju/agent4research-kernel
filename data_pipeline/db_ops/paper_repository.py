@@ -2,6 +2,7 @@ from ai4research.data_pipeline.db_settings.mongo_client import MongoDBClient
 from ai4research.data_pipeline.utils.time_utils import now_beijing_iso
 from ai4research.data_pipeline.schemas.paper_schema import CURRENT_SCHEMA_VERSION, DEFAULT_PAPER_FIELDS
 from rich import print
+from copy import deepcopy
 
 
 def is_empty_value(value):
@@ -260,10 +261,15 @@ def migrate_schema():
             for doc in cursor:
                 update_dict = {}
 
-                # 补齐当前 Schema 中缺失的顶层字段
+                # # 补齐当前 Schema 中缺失的顶层字段
+                # for key, val in DEFAULT_PAPER_FIELDS.items():
+                #     if key not in doc:
+                #         update_dict[key] = val
                 for key, val in DEFAULT_PAPER_FIELDS.items():
                     if key not in doc:
-                        update_dict[key] = val
+                        # 对字典、列表等嵌套默认值进行深拷贝，
+                        # 避免不同论文记录在 Python 处理阶段复用同一个可变对象。
+                        update_dict[key] = deepcopy(val)
 
                 # 更新 Schema 版本号
                 doc_version = doc.get("_schema_version", 0)

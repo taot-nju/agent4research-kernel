@@ -18,6 +18,7 @@
 from dataclasses import asdict, dataclass
 from hashlib import sha1
 from pathlib import Path
+from math import ceil
 
 import requests
 
@@ -26,10 +27,12 @@ from ai4research.fulltext_pipeline.downloaders.pdf_downloader import (
     download_pdf_url,
 )
 from ai4research.fulltext_pipeline.downloaders.domain_rate_limiter import (
+    DomainCooldownActive,
     DomainRateLimiter,
 )
 from ai4research.fulltext_pipeline.repositories.pdf_task_repository import (
     mark_pdf_task_failed,
+    mark_pdf_task_rate_limited,
     mark_pdf_task_success,
     mark_pdf_task_unavailable,
     renew_pdf_task_lease,
@@ -46,7 +49,9 @@ from ai4research.fulltext_pipeline.utils.storage_paths import (
 
 DEFAULT_RETRY_DELAY_SECONDS = 60
 DEFAULT_COMMIT_LEASE_SECONDS = 10 * 60
-
+# 网站返回 HTTP 429 后，暂停该域名 15 分钟。
+# 同时将论文的 next_retry_at 延后相同时间。
+DEFAULT_RATE_LIMIT_COOLDOWN_SECONDS = 15 * 60
 
 @dataclass(frozen=True)
 class PDFPipelineResult:
@@ -202,6 +207,12 @@ def process_claimed_pdf_task(
     last_http_status: int | None = None
     last_final_url = ""
 
+    # 如果某个候选 URL 返回 429，仍允许尝试来自其他域名的候选地址。
+    # 只有全部候选地址都失败后，才按 rate_limited 方式回写任务。
+    rate_limited_error = ""
+    rate_limited_final_url = ""
+    rate_limited_retry_seconds = 0
+
     for candidate_index, candidate in enumerate(
         candidates,
         start=1,
@@ -216,6 +227,26 @@ def process_claimed_pdf_task(
         #     finalize=False,
         #     session=session,
         # )
+        # if rate_limiter is None:
+        #     download_result = download_pdf_url(
+        #         url=source_url,
+        #         target_path=final_path,
+        #         temp_path=temp_path,
+        #         finalize=False,
+        #         session=session,
+        #     )
+        # else:
+        #     # 获取当前 URL 所属域名的访问许可。
+        #     # 同域名受到并发数和请求启动间隔限制；
+        #     # 不同域名可以独立执行。
+        #     with rate_limiter.limit(source_url):
+        #         download_result = download_pdf_url(
+        #             url=source_url,
+        #             target_path=final_path,
+        #             temp_path=temp_path,
+        #             finalize=False,
+        #             session=session,
+        #         )
         if rate_limiter is None:
             download_result = download_pdf_url(
                 url=source_url,
@@ -225,25 +256,74 @@ def process_claimed_pdf_task(
                 session=session,
             )
         else:
-            # 获取当前 URL 所属域名的访问许可。
-            # 同域名受到并发数和请求启动间隔限制；
-            # 不同域名可以独立执行。
-            with rate_limiter.limit(source_url):
-                download_result = download_pdf_url(
-                    url=source_url,
-                    target_path=final_path,
-                    temp_path=temp_path,
-                    finalize=False,
-                    session=session,
+            try:
+                with rate_limiter.limit(source_url):
+                    download_result = download_pdf_url(
+                        url=source_url,
+                        target_path=final_path,
+                        temp_path=temp_path,
+                        finalize=False,
+                        session=session,
+                    )
+
+            except DomainCooldownActive as error:
+                candidate_error = (
+                    f"{source}: {error}"
                 )
+
+                errors.append(candidate_error)
+
+                rate_limited_error = candidate_error
+                rate_limited_final_url = source_url
+
+                # 当前请求没有真正发出，只需等待已有冷却期结束。
+                rate_limited_retry_seconds = max(
+                    rate_limited_retry_seconds,
+                    max(1, ceil(error.remaining_seconds)),
+                )
+
+                # 当前来源处于冷却期，但其他来源可能仍可使用。
+                # 例如 OpenReview 冷却时，可以继续尝试 arXiv。
+                continue
 
         last_http_status = download_result.http_status
         last_final_url = download_result.final_url
 
+        # if not download_result.success:
+        #     errors.append(
+        #         f"{source}: {download_result.error}"
+        #     )
+        #     continue
         if not download_result.success:
-            errors.append(
+            candidate_error = (
                 f"{source}: {download_result.error}"
             )
+
+            errors.append(candidate_error)
+
+            if download_result.http_status == 429:
+                rate_limited_error = candidate_error
+                rate_limited_final_url = (
+                    download_result.final_url
+                    or source_url
+                )
+
+
+                rate_limited_retry_seconds = max(
+                    rate_limited_retry_seconds,
+                    DEFAULT_RATE_LIMIT_COOLDOWN_SECONDS,
+                )
+
+                # 暂停整个来源域名，而不只是延迟当前论文。
+                # 其他域名仍然可以继续下载。
+                if rate_limiter is not None:
+                    rate_limiter.cooldown(
+                        source_url,
+                        DEFAULT_RATE_LIMIT_COOLDOWN_SECONDS,
+                    )
+
+            # 当前候选失败后，继续尝试其他来源。
+            # 例如 OpenReview 429 时，仍可以尝试 arXiv。
             continue
 
         # 下载完成后先续租。
@@ -283,7 +363,7 @@ def process_claimed_pdf_task(
             _safe_remove(temp_path)
 
             error_message = f"atomic_commit_failed: {error}"
-
+        
             updated = mark_pdf_task_failed(
                 paper_id=paper_id,
                 worker_id=normalized_worker_id,
@@ -360,6 +440,40 @@ def process_claimed_pdf_task(
 
     # 防止异常信息无限增长后写入 MongoDB。
     combined_error = combined_error[:4000]
+
+    # 至少有一个候选地址因为 HTTP 429 失败：
+    # 将任务延后重试，但不消耗论文自身的 attempts。
+    if rate_limited_error:
+        updated = mark_pdf_task_rate_limited(
+            paper_id=paper_id,
+            worker_id=normalized_worker_id,
+            error=combined_error or rate_limited_error,
+            retry_delay_seconds=max(
+                1,
+                rate_limited_retry_seconds,
+            ),
+            http_status=429,
+            final_url=rate_limited_final_url,
+        )
+
+        return PDFPipelineResult(
+            success=False,
+            paper_id=paper_id,
+            status=(
+                "failed"
+                if updated
+                else "ownership_lost"
+            ),
+            source="",
+            source_url="",
+            final_url=rate_limited_final_url,
+            relative_path=str(relative_path),
+            size_bytes=0,
+            sha256="",
+            http_status=429,
+            attempted_candidates=len(candidates),
+            error=combined_error or rate_limited_error,
+        )
 
     updated = mark_pdf_task_failed(
         paper_id=paper_id,

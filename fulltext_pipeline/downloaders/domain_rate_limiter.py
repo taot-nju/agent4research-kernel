@@ -41,8 +41,11 @@ DOMAIN_POLICIES: dict[str, DomainPolicy] = {
         min_interval_seconds=3.0,
     ),
     "openreview.net": DomainPolicy(
-        max_concurrency=2,
-        min_interval_seconds=1.0,
+        # OpenReview 在长时间连续下载时容易触发 429。
+        # 第一版采用保守策略：同一时刻只允许一个请求，
+        # 相邻请求至少间隔 5 秒。
+        max_concurrency=1,
+        min_interval_seconds=5.0,
     ),
     "aclanthology.org": DomainPolicy(
         max_concurrency=2,
@@ -63,6 +66,34 @@ DEFAULT_DOMAIN_POLICY = DomainPolicy(
     max_concurrency=1,
     min_interval_seconds=2.0,
 )
+
+
+class DomainCooldownActive(RuntimeError):
+    """
+    表示目标域名当前仍处于冷却期。
+
+    Pipeline 捕获该异常后，应将当前论文延后重试，
+    而不是让 Worker 一直阻塞到冷却结束。
+    """
+
+    def __init__(
+        self,
+        *,
+        hostname: str,
+        remaining_seconds: float,
+    ) -> None:
+        self.hostname = hostname
+        self.remaining_seconds = max(
+            0.0,
+            remaining_seconds,
+        )
+
+        super().__init__(
+            "domain_cooldown_active: "
+            f"hostname={hostname}; "
+            f"remaining_seconds="
+            f"{self.remaining_seconds:.3f}"
+        )
 
 
 class _DomainState:
@@ -87,6 +118,10 @@ class _DomainState:
         # 控制相邻请求的启动间隔。
         self.schedule_lock = threading.Lock()
         self.next_allowed_time = 0.0
+        # 域名级冷却截止时间，使用 monotonic 时间。
+        # 当网站返回 429 等限流响应时，可以暂停整个域名，
+        # 而不只是延迟当前这一篇论文。
+        self.cooldown_until = 0.0
 
 
 class DomainRateLimiter:
@@ -192,14 +227,33 @@ class DomainRateLimiter:
         try:
             # schedule_lock 保证同一域名的请求启动时间按顺序安排。
             with state.schedule_lock:
+                # current_time = time.monotonic()
+
+                # wait_seconds = (
+                #     state.next_allowed_time - current_time
+                # )
                 current_time = time.monotonic()
 
+                cooldown_remaining = (
+                    state.cooldown_until - current_time
+                )
+
+                # 域名级冷却通常可能持续数分钟。
+                # 不让当前 Worker 原地等待，避免任务租约在等待中失效。
+                if cooldown_remaining > 0:
+                    raise DomainCooldownActive(
+                        hostname=hostname,
+                        remaining_seconds=cooldown_remaining,
+                    )
+
+                # 域名没有处于冷却期时，只等待普通请求间隔。
                 wait_seconds = (
                     state.next_allowed_time - current_time
                 )
 
                 if wait_seconds > 0:
                     time.sleep(wait_seconds)
+
 
                 request_start_time = time.monotonic()
 
@@ -212,3 +266,52 @@ class DomainRateLimiter:
 
         finally:
             state.semaphore.release()
+
+
+    def cooldown(
+        self,
+        url: str,
+        cooldown_seconds: float,
+    ) -> float:
+        """
+        让 URL 所属域名进入冷却期。
+
+        典型场景：
+
+            OpenReview 返回 HTTP 429
+                ↓
+            cooldown(url, 600)
+                ↓
+            后续访问 openreview.net 的所有线程
+            至少等待 600 秒后才能继续请求
+
+        多个线程重复设置冷却时，只会保留更晚的截止时间，
+        不会因为较短的冷却请求而提前解除已有冷却。
+
+        返回：
+            从当前时刻计算，该域名剩余的冷却秒数。
+        """
+
+        if cooldown_seconds < 0:
+            raise ValueError(
+                "cooldown_seconds 不能小于 0"
+            )
+
+        hostname = self.get_hostname(url)
+        state = self._get_state(hostname)
+
+        with state.schedule_lock:
+            current_time = time.monotonic()
+            requested_until = (
+                current_time + cooldown_seconds
+            )
+
+            state.cooldown_until = max(
+                state.cooldown_until,
+                requested_until,
+            )
+
+            return max(
+                0.0,
+                state.cooldown_until - current_time,
+            )

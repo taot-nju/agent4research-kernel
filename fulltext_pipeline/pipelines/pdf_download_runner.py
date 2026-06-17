@@ -180,5 +180,21 @@ def run_pdf_download_tasks(
 
             if result.error:
                 print(f"error={result.error}")
+                # 来源网站返回 HTTP 429 时，不再继续领取新任务。
+                #
+                # 当前任务已经通过 Pipeline 写入较晚的 next_retry_at，
+                # 并且没有消耗 attempts。继续领取同一来源的论文只会
+                # 产生无意义的数据库状态更新。
+                if result.http_status == 429:
+                    print("=" * 100)
+                    print(
+                        "⚠️ 检测到 HTTP 429，"
+                        "本次顺序下载将停止领取新的 PDF 任务。"
+                    )
+                    print(
+                        "请等待来源网站冷却期结束后，"
+                        "再重新执行下载命令。"
+                    )
+                    break
 
     return summary

@@ -7,10 +7,14 @@
 
 """
 
+from ai4research.document_pipeline.schemas.document_asset import (
+    create_default_document_asset,
+)
+
 # -----------------------------------------------------------------------------------------------------------------------
 
 # 当前 schema 版本号（非常重要：用于标记当前的Schema更新了多少版）
-CURRENT_SCHEMA_VERSION = 3
+CURRENT_SCHEMA_VERSION = 4
 
 
 # 默认字段结构：以后可能会随着分析的深入，增加更多自定义字段
@@ -265,6 +269,19 @@ DEFAULT_PAPER_FIELDS = {
         "worker_id": "",
         "lease_until": None,
     },
+
+    # 标准文档解析资产。
+    #
+    # document_asset 描述 PDF 经 GLM-OCR 或其他解析器处理后，
+    # 生成的 Markdown、纯文本、布局 JSON、解析报告等资产。
+    #
+    # 它与 txt_asset 的区别：
+    # - txt_asset 只描述纯文本文件；
+    # - document_asset 描述完整的标准文档资产包。
+    #
+    # 当前保留 txt_asset 以兼容已有设计；后续文档解析流程
+    # 以 document_asset 为主要状态记录。
+    "document_asset": create_default_document_asset(),
 
     "seen_in_sources": [],  # 记录一篇论文在哪些来源中出现过，例如：arXiv, ICLR, NeurIPS, etc.；如果一篇论文既在arXiv上出现过，也被ICLR 2026接受了，那么这个字段就记录["arXiv", "ICLR 2026"]。
 

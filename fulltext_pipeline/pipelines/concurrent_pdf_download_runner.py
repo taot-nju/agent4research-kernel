@@ -196,6 +196,13 @@ def run_concurrent_pdf_download_tasks(
 
     summary = ConcurrentPDFRunSummary()
 
+    # 本次运行一旦检测到来源网站返回 429，
+    # 停止继续领取新任务。
+    #
+    # 已经提交到线程池的任务仍会正常完成，
+    # 避免强行中断后留下 running 状态。
+    rate_limit_detected = False
+
     future_metadata: dict[
         Future[PDFPipelineResult],
         tuple[str, str],
@@ -215,6 +222,7 @@ def run_concurrent_pdf_download_tasks(
             while (
                 summary.claimed < limit
                 and len(future_metadata) < max_workers
+                and not rate_limit_detected
             ):
                 task_number = summary.claimed + 1
 
@@ -296,6 +304,17 @@ def run_concurrent_pdf_download_tasks(
 
             summary.record_result(result)
 
+            if result.http_status == 429:
+                rate_limit_detected = True
+
+                print(
+                    "⚠️ 检测到 HTTP 429，"
+                    "本次运行将停止领取新的 PDF 任务。"
+                )
+                print(
+                    "已经提交到线程池的任务仍会正常结束。"
+                )
+
             print(
                 f"completed={summary.completed} | "
                 f"paper_id={paper_id} | "
@@ -307,5 +326,14 @@ def run_concurrent_pdf_download_tasks(
 
             if result.error:
                 print(f"error={result.error}")
+
+    if rate_limit_detected:
+        print("=" * 100)
+        print(
+            "⚠️ 本次 PDF 下载因来源网站限流而提前停止领取任务。"
+        )
+        print(
+            "请等待冷却期结束后，再重新执行下载命令。"
+        )
 
     return summary

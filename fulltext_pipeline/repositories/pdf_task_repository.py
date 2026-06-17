@@ -544,3 +544,192 @@ def refresh_unavailable_pdf_tasks(
     )
 
     return result.modified_count
+
+
+def mark_pdf_task_rate_limited(
+    *,
+    paper_id: str,
+    worker_id: str,
+    error: str,
+    retry_delay_seconds: int,
+    http_status: int = 429,
+    final_url: str = "",
+) -> bool:
+    """
+    将当前 Worker 拥有的任务标记为“因来源网站限流而延后重试”。
+
+    MongoDB 中仍使用 failed 状态，使现有任务领取逻辑可以根据
+    next_retry_at 在冷却结束后重新领取。
+
+    与普通下载失败的区别：
+
+    1. 429 是来源网站的临时限流，不是论文自身的问题；
+    2. 领取任务时 attempts 已经加 1；
+    3. 本函数会将 attempts 减回去，不消耗论文的重试次数；
+    4. next_retry_at 使用更长的来源冷却时间。
+
+    返回：
+        成功更新返回 True；
+        如果任务已经不再属于当前 Worker，返回 False。
+    """
+
+    if retry_delay_seconds <= 0:
+        raise ValueError(
+            "retry_delay_seconds 必须大于 0"
+        )
+
+    normalized_error = error.strip()
+
+    if not normalized_error:
+        raise ValueError("error 不能为空")
+
+    if http_status != 429:
+        raise ValueError(
+            "mark_pdf_task_rate_limited 只用于 HTTP 429"
+        )
+
+    now = utc_now()
+    next_retry_at = now + timedelta(
+        seconds=retry_delay_seconds
+    )
+
+    papers = MongoDBClient.get_collection()
+
+    result = papers.update_one(
+        build_owned_running_task_filter(
+            paper_id=paper_id,
+            worker_id=worker_id,
+        ),
+        {
+            "$set": {
+                "pdf_asset.status": "failed",
+                "pdf_asset.final_url": final_url.strip(),
+                "pdf_asset.http_status": http_status,
+                "pdf_asset.last_error": normalized_error,
+                "pdf_asset.last_checked_at": now,
+                "pdf_asset.next_retry_at": next_retry_at,
+                "pdf_asset.updated_at": now,
+                "pdf_asset.worker_id": "",
+                "pdf_asset.lease_until": None,
+            },
+
+            # claim_next_pdf_task() 在领取任务时已经将 attempts 加 1。
+            # HTTP 429 属于来源网站临时限流，不应消耗论文自身的
+            # 下载尝试次数，因此在这里减回去。
+            "$inc": {
+                "pdf_asset.attempts": -1,
+            },
+        },
+    )
+
+    return result.modified_count == 1
+
+
+def recover_rate_limited_pdf_tasks(
+    *,
+    selection_filter: dict[str, Any] | None = None,
+    limit: int | None = None,
+) -> int:
+    """
+    恢复因历史 HTTP 429 限流而耗尽 attempts 的 PDF 任务。
+
+    适用场景：
+
+        旧版本下载器将 OpenReview 429 当成普通下载失败，
+        导致同一论文多次重试，并最终达到 max_attempts。
+
+    恢复后：
+
+        pdf_asset.status         保持 failed
+        pdf_asset.attempts       重置为 0
+        pdf_asset.next_retry_at  设置为当前时间
+        pdf_asset.worker_id      清空
+        pdf_asset.lease_until    清空
+
+    保留：
+
+        pdf_asset.http_status
+        pdf_asset.last_error
+
+    这样可以保留历史错误信息，同时允许新版下载器重新领取。
+
+    selection_filter:
+        可选的附加业务筛选条件，例如：
+
+            {"accepted_by": "ICLR 2025"}
+
+            {"_id": "paper_id"}
+
+    limit:
+        最多恢复多少条记录。
+        None 表示恢复全部符合条件的记录。
+
+    返回：
+        实际恢复的记录数量。
+    """
+
+    if selection_filter is not None:
+        if not isinstance(selection_filter, dict):
+            raise TypeError(
+                "selection_filter 必须是字典或 None"
+            )
+
+    if limit is not None and limit <= 0:
+        raise ValueError("limit 必须大于 0")
+
+    conditions: list[dict[str, Any]] = [
+        {
+            "pdf_asset.status": "failed",
+        },
+        {
+            "pdf_asset.http_status": 429,
+        },
+    ]
+
+    if selection_filter:
+        conditions.insert(0, selection_filter)
+
+    query = {
+        "$and": conditions,
+    }
+
+    now = utc_now()
+    papers = MongoDBClient.get_collection()
+
+    # update_many 不支持 limit，因此有限量恢复时，
+    # 先稳定地查询需要恢复的论文 _id。
+    if limit is not None:
+        paper_ids = [
+            document["_id"]
+            for document in papers.find(
+                query,
+                {
+                    "_id": 1,
+                },
+            ).sort("_id", 1).limit(limit)
+        ]
+
+        if not paper_ids:
+            return 0
+
+        query = {
+            "_id": {
+                "$in": paper_ids,
+            }
+        }
+
+    result = papers.update_many(
+        query,
+        {
+            "$set": {
+                "pdf_asset.status": "failed",
+                "pdf_asset.attempts": 0,
+                "pdf_asset.next_retry_at": now,
+                "pdf_asset.updated_at": now,
+                "pdf_asset.worker_id": "",
+                "pdf_asset.lease_until": None,
+            }
+        },
+    )
+
+    return result.modified_count
