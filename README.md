@@ -1,21 +1,10 @@
 # agent4research-kernel
 
-`agent4research-kernel` 是一个面向 AI Research Agent 的论文数据与检索内核。
+面向 AI Research Agent 的论文数据、全文资产与检索编排内核。
 
-本项目当前阶段的重点不是直接构建一个完整的自动科研 Agent，而是先构建一个稳定、可扩展、可追踪的论文数据底座：从 arXiv、OpenReview、PMLR、ICML 官方网站、AAAI 官方网站、ACL Anthology（含 ACL、EMNLP、NAACL、COLING 等）等来源采集论文元数据，转换为统一的论文 Schema，写入 MongoDB，并支持后续的去重、多源融合、字段检查、命令行查询、PDF 处理、正文解析和科研事实抽取。
+本项目不止是论文爬虫。它负责把多源论文元数据、PDF、OCR 文档和处理状态沉淀为可追踪、可恢复、可扩展的数据资产，并为后续的全文切分、语义检索和 Research Agent 提供统一入口。
 
-需要注意：
-
-```text
-仓库 / 项目名：agent4research-kernel
-Python 包路径：ai4research
-```
-
-因此，当前命令行运行方式仍然是：
-
-```bash
-python -m ai4research.data_pipeline.scripts_py.xxx
-```
+> 仓库名为 `agent4research-kernel`；当前 Python 包目录名为 `ai4research`。
 
 ---
 
@@ -52,179 +41,119 @@ Research-agent data infrastructure
 
 ---
 
+---
+
 ## 2. 当前已实现功能总览
 
-当前版本已经从最初的 arXiv 单源爬取，扩展为多源论文数据采集与 MongoDB 管理内核。
+截至 2026-06-20，以下主链路已经跑通：
 
-| 模块 | 当前状态 | 说明 |
+```text
+多源论文元数据采集
+→ MongoDB 统一存储与去重融合
+→ PDF 自动下载与资产校验
+→ GLM-OCR 文档解析
+→ 基础质量检查
+→ 根据 Research Topic 召回论文
+→ 自动复用或补齐 PDF/OCR 资产
+→ 输出可用 Markdown 路径
+```
+
+| 能力 | 状态 | 说明 |
 |---|---|---|
-| MongoDB 数据库连接 | 已实现 | 支持 MongoDB 配置、连接和 collection 获取 |
-| MongoDB 索引初始化 | 已实现 | 支持 papers 集合索引初始化 |
-| 统一论文 Schema | 已实现 | 使用 `DEFAULT_PAPER_FIELDS` 定义统一论文字段 |
-| Schema 版本管理 | 已实现 | 使用 `CURRENT_SCHEMA_VERSION` 标记 Schema 版本 |
-| Schema 迁移 | 已实现 | 支持为旧记录补齐新增字段 |
-| 论文 upsert | 已实现 | 支持插入、去重、字段补全、来源追踪和编辑日志 |
-| 字段检查 | 已实现 | 支持检查字段是否为空、统计字段覆盖情况 |
-| 数据库查询 | 已实现 | 支持标题模糊查询、字段精确查询、非空字段筛选 |
-| arXiv 数据源 | 已实现 | 支持按日期范围和 category 爬取论文 |
-| OpenReview 数据源 | 已实现 | 支持 ICLR、NeurIPS、ICML 等会议的 OpenReview 论文采集 |
-| PMLR 数据源 | 已实现 | 支持采集 PMLR Proceedings 中的论文元数据 |
-| ICML Official 数据源 | 已实现 | 支持从 ICML 官方页面采集论文信息 |
-| AAAI Official 数据源 | 已实现 | 支持从 AAAI 官方 Proceedings (OJS) 采集论文信息 |
-| ACL Anthology 数据源 | 已实现 | 支持 ACL、EMNLP、NAACL、COLING 等 ACL 体系论文采集 |
-| 操作文档 | 持续更新 | `scripts_md/` 中已沉淀数据库、迁移和各数据源爬取文档 |
-
-当前尚未完成或仍处于后续规划中的能力包括：
-
-- PDF 自动下载；
-- PDF 正文解析；
-- OCR 或文本抽取；
-- 参考文献结构化抽取；
-- 表格、图、公式等内容抽取；
-- baseline / benchmark / metric 自动抽取；
-- 论文关系图谱；
-- Web 可视化界面；
-- 上层 Research Agent。
+| 多源元数据采集 | 已完成 | arXiv、OpenReview、PMLR、ICML Official、AAAI Official、ACL Anthology |
+| MongoDB Schema、索引、迁移 | 已完成 | 支持统一记录、去重、多源融合和历史 Schema 迁移 |
+| PDF 下载与管理 | 已完成 | 支持候选 URL 解析、校验、失败重试、租约、并发和幂等执行 |
+| GLM-OCR 接入 | MVP 已完成 | 通过 OpenAI-compatible 接口调用本地 vLLM 服务 |
+| 标准文档输出 | MVP 已完成 | 输出逐页 Markdown 和 `parse_report.json` |
+| 文档质量检查 | MVP 已完成 | 检查页数、页标记、字符数、标题和解析报告 |
+| Topic 到 Markdown 编排 | MVP 已完成 | 词法召回、无 PDF 候选补位、下载、OCR、质检、路径输出 |
+| 自动化测试 | 已建立 | 当前 7 项测试通过 |
+| chunk / embedding / 向量检索 | 未开始 | 下一阶段重点 |
+| 全文二次排序与答案生成 | 未开始 | 后续 Research Agent 能力 |
 
 ---
 
 ## 3. 当前项目结构
 
-当前文件结构如下：
+### 3.1 分层架构
 
 ```text
-.
-├── data_pipeline
-│   ├── crawlers
-│   │   ├── aaai_official_crawler.py
-│   │   ├── acl_anthology_crawler.py
-│   │   ├── arxiv_crawler.py
-│   │   ├── base.py
-│   │   ├── icml_official_crawler.py
-│   │   ├── __init__.py
-│   │   ├── openreview_crawler.py
-│   │   └── pmlr_crawler.py
-│   ├── db_ops
-│   │   ├── field_checker.py
-│   │   ├── __init__.py
-│   │   ├── paper_query.py
-│   │   └── paper_repository.py
-│   ├── db_settings
-│   │   ├── init_indexes.py
-│   │   ├── __init__.py
-│   │   ├── mongo_client.py
-│   │   └── mongo_config.py
-│   ├── __init__.py
-│   ├── pipelines
-│   │   ├── aaai_official_pipeline.py
-│   │   ├── acl_anthology_pipeline.py
-│   │   ├── arxiv_daily.py
-│   │   ├── icml_official_pipeline.py
-│   │   ├── __init__.py
-│   │   ├── openreview_pipeline.py
-│   │   └── pmlr_pipeline.py
-│   ├── schemas
-│   │   ├── __init__.py
-│   │   └── paper_schema.py
-│   ├── scripts_py
-│   │   ├── check_fields.py
-│   │   ├── crawl_aaai_official.py
-│   │   ├── crawl_acl_anthology.py
-│   │   ├── crawl_arxiv_daily.py
-│   │   ├── crawl_icml_official.py
-│   │   ├── crawl_openreview.py
-│   │   ├── crawl_pmlr.py
-│   │   ├── init_db.py
-│   │   ├── __init__.py
-│   │   ├── migrate_schema.py
-│   │   └── query_paper.py
-│   ├── source_configs
-│   │   ├── aaai_config.py
-│   │   ├── acl_anthology_config.py
-│   │   ├── arxiv_spec_config.py
-│   │   ├── conference_gen_config.py
-│   │   ├── __init__.py
-│   │   ├── openreview_gen_config.py
-│   │   └── pmlr_gen_config.py
-│   └── utils
-│       ├── __init__.py
-│       ├── text_utils.py
-│       └── time_utils.py
-├── __init__.py
-├── README.md
-├── requirements.txt
-└── scripts_md
-    ├── 0_db_operations.md
-    ├── 1_init_database.md
-    ├── 2_migrate_schema.md
-    ├── 3_crawl_arxiv_daily.md
-    ├── 4_crawl_openreview_by_Conf_Year.md
-    ├── 5_crawl_pmlr_by_Conf_Year.md
-    ├── 6_crawl_ICML_by_Official.md
-    ├── 7_crawl_NeurIPS_by_OpenReview.md
-    ├── 8_crawl_ACL_by_OfficialAnthology.md
-    ├── 9_crawl_AAAI_by_Official.md
-    ├── 10_crawl_EMNLP_by_OfficialAnthology.md
-    ├── 11_crawl_NAACL_by_OfficialAnthology.md
-    ├── 12_crawl_COLING_by_OfficialAnthology.md
-    └── All Sources Details.md
+data_pipeline
+    论文元数据采集、Schema、MongoDB 与查询
+        ↓
+fulltext_pipeline
+    PDF 候选解析、下载、校验与任务状态管理
+        ↓
+document_pipeline
+    PDF 页面渲染、OCR、Markdown 生成与质量检查
+        ↓
+research_pipeline
+    Topic 召回与跨模块工作流编排
 ```
 
-各目录职责如下：
+各层通过 Schema、仓储接口和任务状态衔接。上层编排负责组合能力，底层模块不反向依赖上层，因此可以独立替换检索器、OCR 后端、解析器或质量检查器。
 
-| 目录 | 作用 |
-|---|---|
-| `data_pipeline/crawlers/` | 从具体数据源抓取论文原始信息 |
-| `data_pipeline/pipelines/` | 组织爬取流程，并逐篇写入数据库 |
-| `data_pipeline/scripts_py/` | 命令行入口脚本 |
-| `data_pipeline/source_configs/` | 不同数据源的配置 |
-| `data_pipeline/schemas/` | 统一论文 Schema |
-| `data_pipeline/db_settings/` | MongoDB 连接、配置和索引 |
-| `data_pipeline/db_ops/` | 数据库 upsert、查询、字段检查等操作 |
-| `data_pipeline/utils/` | 文本归一化、时间工具等通用函数 |
-| `scripts_md/` | 分步骤操作文档 |
+### 3.2 目录结构
+
+```text
+ai4research/
+├── data_pipeline/
+│   ├── crawlers/                 # 各数据源爬虫
+│   ├── db_ops/                   # 查询、字段检查和论文仓储
+│   ├── db_settings/              # MongoDB 连接、配置与索引
+│   ├── pipelines/                # 各来源采集流程
+│   ├── schemas/                  # 统一论文 Schema
+│   ├── scripts_py/               # 数据采集与数据库 CLI
+│   ├── source_configs/           # 数据源配置
+│   └── utils/
+├── fulltext_pipeline/
+│   ├── downloaders/              # 下载器和域名限速
+│   ├── pipelines/                # 串行/并发 PDF 下载 Runner
+│   ├── repositories/             # PDF 任务领取、租约和状态更新
+│   ├── scripts_py/               # PDF 下载、审计和恢复 CLI
+│   └── utils/                    # URL 解析、PDF 校验和存储路径
+├── document_pipeline/
+│   ├── ocr_backends/             # OCR 后端统一接口及 OpenAI-compatible 实现
+│   ├── parsers/                  # 文档解析器接口和 OCR 解析器
+│   ├── pipelines/                # 文档解析与质量检查 Runner
+│   ├── quality_checks/           # 文档质量检查接口及基础实现
+│   ├── repositories/             # 文档任务与质量状态仓储
+│   ├── schemas/                  # 文档资产结构
+│   ├── scripts_py/               # 解析、状态刷新和质检 CLI
+│   └── utils/                    # 文档资产路径
+├── research_pipeline/
+│   ├── retrieval/                # TopicRetriever 与 MongoDB 词法召回
+│   ├── pipelines/                # Topic → Markdown 上层编排
+│   └── scripts_py/               # 对外 CLI
+├── tests/
+│   ├── document_pipeline/
+│   └── research_pipeline/
+├── scripts_md/                   # 分阶段操作手册
+├── requirements.txt
+├── requirements-dev.txt
+└── README.md
+```
 
 ---
 
 ## 4. 整体数据流
 
-本项目采用统一的数据处理流程：
+当前项目形成了从论文来源到 Agent 可消费 Markdown 的连续数据流：
 
 ```text
-source_configs/
-    ↓
-crawlers/
-    ↓
-pipelines/
-    ↓
-db_ops/paper_repository.py
-    ↓
-MongoDB
+多源元数据采集
+→ MongoDB 统一 Schema、去重和来源追踪
+→ PDF 候选解析、下载与校验
+→ PDF 页面渲染和 GLM-OCR
+→ 标准 Markdown 与 parse_report.json
+→ 基础文档质量检查
+→ Research Topic 召回与跨模块编排
+→ READY_MARKDOWN_PATHS
 ```
 
-也就是：
+各层通过 Schema、仓储接口和任务状态衔接。底层模块不反向依赖上层编排，因此召回器、OCR 后端、解析器、质量规则和并发方式都可以独立替换。
 
-```text
-配置数据源
-    ↓
-爬取论文
-    ↓
-转换为统一 paper_data
-    ↓
-逐篇 upsert 到 MongoDB
-    ↓
-支持查询、检查、迁移和后续处理
-```
-
-整体原则是：
-
-```text
-爬取一篇论文
-    -> 转换为统一 Schema
-    -> 立即写入或更新 MongoDB
-```
-
-这种方式相比"全部爬完后一次性写入"更适合长期增量采集，也方便中途失败后恢复。
+元数据采用逐篇 upsert；PDF 和文档任务采用原子领取、租约、Worker 所有权、失败重试、临时文件和原子提交。重复运行会复用成功资产。
 
 ---
 
@@ -281,6 +210,62 @@ Collection: papers
 
 ---
 
+### 5.3 文档处理新增依赖
+
+主环境已经验证：
+
+```text
+Python 3.10
+openai==2.43.0
+PyMuPDF==1.27.2.3
+```
+
+开发测试依赖：
+
+```text
+-r requirements.txt
+pytest==9.1.0
+```
+
+### 5.4 全文资产与 OCR 服务
+
+当前 MVP 使用 GLM-OCR，并通过 vLLM 暴露 OpenAI-compatible API。
+
+示例启动命令：
+
+```bash
+vllm serve <GLM_OCR_MODEL_PATH> \
+  --allowed-local-media-path / \
+  --port 9000 \
+  --speculative-config '{"method": "mtp", "num_speculative_tokens": 1}' \
+  --served-model-name glm-ocr
+```
+
+健康检查：
+
+```bash
+curl --fail --silent --show-error \
+  http://127.0.0.1:9000/v1/models
+```
+
+默认 OCR 配置：
+
+```text
+base_url:       http://127.0.0.1:9000/v1
+model_name:     glm-ocr
+timeout:        300 seconds
+render_dpi:     200
+page_workers:   4
+max_tokens:     8192
+temperature:    0.0
+```
+
+OCR 服务地址和模型名由 `document_pipeline/config.py` 集中管理，可通过环境变量覆盖。解析器只依赖 `PageOCRBackend` 接口，后续可以接入其他本地服务、云端 API 或负载均衡后端。
+
+全文资产根目录由 `AI4RESEARCH_DATA_ROOT` 指定。服务器当前使用 `/data/ai4research_assets`，未设置时默认使用 `~/ai4research_assets`。
+
+---
+
 ## 6. 初始化数据库
 
 首次使用时，需要初始化数据库索引。
@@ -305,6 +290,8 @@ data_pipeline/db_settings/init_indexes.py
 ```
 
 索引用于加速常用查询和去重检查，例如标题、来源 ID、venue/year、标签、参考文献等字段。具体索引字段以 `init_indexes.py` 中的实现为准。
+
+---
 
 ---
 
@@ -797,7 +784,6 @@ MongoDB 中只保存文件路径和处理状态。
 ```
 
 示例：
-
 ```python
 {
     "time": "2026-06-01T10:00:00+08:00",
@@ -811,6 +797,43 @@ MongoDB 中只保存文件路径和处理状态。
 - `edit_logs` 用于记录论文记录的插入、更新、字段补全等操作；
 - 该字段有助于追踪数据来源和更新历史；
 - 后续排查重复爬取、字段覆盖和多源融合问题时，该字段非常重要。
+
+---
+
+### 7.15 当前 PDF 与文档资产状态
+
+旧字段 `processing_status` 和 `local_pdf_path` 为兼容历史数据保留。当前 PDF 与 OCR 主流程以 `pdf_asset` 和 `document_asset` 为准。
+
+一篇论文记录除元数据外，主要通过两个嵌套对象跟踪全文资产。
+
+#### `pdf_asset`
+
+记录 PDF 下载状态、来源 URL、最终 URL、相对路径、文件大小、SHA256、HTTP 状态、尝试次数、错误、重试时间、Worker 和租约。
+
+常见状态：
+
+```text
+pending | running | success | failed | unavailable
+```
+
+#### `document_asset`
+
+记录文档解析状态、解析器名称与版本、来源 PDF 路径和 SHA256、Markdown/报告路径、页数、字符数、耗时、质量状态、错误、尝试次数、Worker 和租约。
+
+常见状态：
+
+```text
+blocked | pending | running | success | failed
+```
+
+其中：
+
+- PDF 不可用时，文档任务为 `blocked`；
+- PDF 成功后，文档任务可刷新为 `pending`；
+- 解析成功后为 `success`；
+- 重复执行会跳过已成功任务。
+
+所有任务更新都校验 Worker 所有权，避免租约过期后旧 Worker 覆盖新结果。
 
 ---
 
@@ -868,6 +891,8 @@ upsert 基本策略：
 - 发表年份；
 - 标题相似度；
 - PDF 指纹。
+
+---
 
 ---
 
@@ -1203,6 +1228,8 @@ scripts_md/All Sources Details.md
 
 ---
 
+---
+
 ## 10. 数据库查询与字段检查
 
 ### 10.1 查询论文
@@ -1328,6 +1355,8 @@ scripts_md/0_db_operations.md
 
 ---
 
+---
+
 ## 11. Schema 迁移
 
 当 `paper_schema.py` 中的 `DEFAULT_PAPER_FIELDS` 增加新字段后，旧记录可能缺少这些字段。
@@ -1359,6 +1388,8 @@ scripts_md/2_migrate_schema.md
 ```text
 只补齐缺失字段，不随意覆盖已有非空字段。
 ```
+
+---
 
 ---
 
@@ -1512,28 +1543,235 @@ python -m ai4research.data_pipeline.scripts_py.query_paper \
 
 ---
 
+### 12.9 Research Topic 到 Markdown
+
+所有 `python -m ai4research...` 命令应在包目录的父目录执行。服务器目录为 `~/ai4research` 时，先进入 `~`：
+
+#### 1. 只预览候选
+
+预览不会下载 PDF、不会执行 OCR，也不会修改数据库：
+
+```bash
+cd ~
+
+python -m ai4research.research_pipeline.scripts_py.process_research_topic \
+  --topic "agent memory" \
+  --top-k 3 \
+  --preview
+```
+
+#### 2. 执行完整工作流
+
+```bash
+cd ~
+
+python -m ai4research.research_pipeline.scripts_py.process_research_topic \
+  --topic "agent memory" \
+  --top-k 3
+```
+
+工作流自动完成：
+
+```text
+Topic 词法召回
+→ 检查高相关候选是否具备 PDF 处理条件
+→ 无 PDF 候选自动向后补位
+→ 已下载 PDF 直接复用，否则下载
+→ 自动刷新文档任务可用性
+→ 已解析文档直接复用，否则 OCR
+→ 质量检查
+→ 输出 READY_MARKDOWN_PATHS
+```
+
+输出示例：
+
+```text
+READY_MARKDOWN_PATHS
+====================================================================================================
+/data/ai4research_assets/documents/ac/7d/<paper_id>/document.md
+/data/ai4research_assets/documents/9e/75/<paper_id>/document.md
+/data/ai4research_assets/documents/19/34/<paper_id>/document.md
+```
+
+#### 3. 保存结构化执行结果
+
+```bash
+python -m ai4research.research_pipeline.scripts_py.process_research_topic \
+  --topic "agent memory" \
+  --top-k 3 \
+  --save-json ~/agent_memory_result.json
+```
+
+JSON 包含候选、分数、命中字段、各阶段统计、最终状态、错误和 Markdown 路径。
+
+#### 数量参数
+
+| 参数 | 默认值 | 含义 |
+|---|---:|---|
+| `--top-k` | 3 | 目标处理并返回的论文数 |
+| `--candidate-scan-limit` | 30 | 为跳过无 PDF 候选而检查的高相关候选数 |
+| `--candidate-pool-size` | 1000 | 从 MongoDB 初步读取并参与评分的候选池上限 |
+
+通常应满足：
+
+```text
+candidate_pool_size >= candidate_scan_limit >= top_k
+```
+
+如果数据库中可处理论文不足，或者下载、OCR、质检实际失败，最终路径数量仍可能少于 `top-k`。
+
+### 12.10 Topic 召回策略
+
+当前实现是可解释的 MongoDB 词法召回：
+
+```text
+name:     mongo-lexical-topic-retriever
+version:  2
+```
+
+评分考虑：
+
+- 完整 Topic 是否出现在标题或摘要；
+- 查询词是否出现在标题、摘要、关键词或标签；
+- 查询词覆盖率。
+
+分数是同一次查询内部使用的原始排序分，不是百分制，也不应跨不同 Topic 直接比较。
+
+同分时依次按以下规则稳定排序：
+
+1. 分数降序；
+2. 标题字母顺序；
+3. paper ID。
+
+PDF 是否下载、OCR 是否完成不参与相关性评分。处理状态只用于上层编排判断能否复用或需要补齐资产，因此相同数据库内容下的检索排序可复现。
+
+`TopicRetriever` 是独立接口。后续可以增加 BM25、向量召回或混合检索，而不改动 PDF 和 OCR 模块。
+
+### 12.11 PDF、OCR 与质量检查独立入口
+
+#### PDF 下载
+
+处理指定论文：
+
+```bash
+cd ~
+
+python -m ai4research.fulltext_pipeline.scripts_py.download_pdfs \
+  --paper-id <paper_id>
+```
+
+PDF 管线支持：
+
+- 多来源候选 URL 优先级；
+- 域名级限速；
+- PDF 内容校验；
+- 临时文件与原子提交；
+- 任务领取、租约和 Worker 所有权；
+- 失败重试与限流任务恢复；
+- 串行或并发下载；
+- 已成功资产自动跳过。
+
+完整操作参见 `scripts_md/13_download_and_manage_PDFs.md`。
+
+#### 文档可用性刷新
+
+单独运行 PDF 和 OCR 命令时，需要把 PDF 状态同步到文档任务：
+
+```bash
+python -m ai4research.document_pipeline.scripts_py.refresh_document_availability \
+  --paper-id <paper_id> \
+  --execute
+```
+
+使用 `process_research_topic` 时，这一步由上层编排自动完成。
+
+#### OCR 解析
+
+```bash
+python -m ai4research.document_pipeline.scripts_py.parse_documents \
+  --paper-id <paper_id>
+```
+
+批量入口还支持 `--accepted-by`、`--all` 和 `--limit`。当前文档 Runner 按论文顺序处理，单篇论文内部使用页面级并发。
+
+解析成功后写入：
+
+- `document.md`：按页拼接的标准 Markdown；
+- `parse_report.json`：逐页结果、耗时、错误和解析器版本；
+- MongoDB `document_asset`：路径、页数、字符数、状态、来源 PDF SHA256 等。
+
+#### 文档质量检查
+
+```bash
+python -m ai4research.document_pipeline.scripts_py.check_document_quality \
+  --paper-id <paper_id>
+```
+
+当前基础检查包括：
+
+- Markdown 文件存在且非空；
+- 页数有效；
+- Markdown 页标记与报告页数一致；
+- 字符数与数据库记录基本一致；
+- 平均每页字符数合理；
+- 标题匹配；
+- 解析报告完整。
+
+质量状态：
+
+```text
+unchecked | passed | warning | rejected
+```
+
+完整操作参见 `scripts_md/14_parse_and_quality_check_documents.md`。
+
+### 12.12 自动化测试
+
+在仓库目录运行：
+
+```bash
+cd ~/ai4research
+python -m pytest -q
+```
+
+当前测试覆盖：
+
+- OCR 文档解析成功、页面顺序和部分页面失败；
+- 基础文档质量检查；
+- Topic 候选跳过无 PDF 记录并自动补位；
+- 候选扫描数量不低于 `top-k`。
+
+当前基线：
+
+```text
+7 passed
+```
+
+---
+
 ## 13. 操作文档
 
-当前 `scripts_md/` 已经包含以下操作文档：
+`scripts_md/` 保存按阶段执行和排障的详细说明：
 
 | 文档 | 内容 |
 |---|---|
-| `0_db_operations.md` | 数据库查询、字段检查等基础操作 |
-| `1_init_database.md` | 初始化 MongoDB 与索引 |
+| `0_db_operations.md` | MongoDB 常用操作 |
+| `1_init_database.md` | 初始化数据库与索引 |
 | `2_migrate_schema.md` | Schema 迁移 |
-| `3_crawl_arxiv_daily.md` | arXiv 日常增量爬取 |
-| `4_crawl_openreview_by_Conf_Year.md` | 按会议和年份爬取 OpenReview（ICLR 等） |
-| `5_crawl_pmlr_by_Conf_Year.md` | 按会议和年份爬取 PMLR |
-| `6_crawl_ICML_by_Official.md` | 从 ICML 官方网站爬取论文 |
-| `7_crawl_NeurIPS_by_OpenReview.md` | 通过 OpenReview 爬取 NeurIPS |
-| `8_crawl_ACL_by_OfficialAnthology.md` | 从 ACL Anthology 爬取 ACL 论文 |
-| `9_crawl_AAAI_by_Official.md` | 从 AAAI 官方 Proceedings 爬取论文 |
-| `10_crawl_EMNLP_by_OfficialAnthology.md` | 从 ACL Anthology 爬取 EMNLP 论文 |
-| `11_crawl_NAACL_by_OfficialAnthology.md` | 从 ACL Anthology 爬取 NAACL 论文 |
-| `12_crawl_COLING_by_OfficialAnthology.md` | 从 ACL Anthology 爬取 COLING 论文 |
-| `All Sources Details.md` | 所有数据源覆盖清单（含各会议各年份爬取状态） |
-
-建议后续每新增一个数据源，都同步新增一个 `scripts_md/` 操作文档。
+| `3_crawl_arxiv_daily.md` | arXiv 增量采集 |
+| `4_crawl_openreview_by_Conf_Year.md` | OpenReview 会议采集 |
+| `5_crawl_pmlr_by_Conf_Year.md` | PMLR 采集 |
+| `6_crawl_ICML_by_Official.md` | ICML 官方来源采集 |
+| `7_crawl_NeurIPS_by_OpenReview.md` | NeurIPS 采集 |
+| `8_crawl_ACL_by_OfficialAnthology.md` | ACL 采集 |
+| `9_crawl_AAAI_by_Official.md` | AAAI 官方来源采集 |
+| `10_crawl_EMNLP_by_OfficialAnthology.md` | EMNLP 采集 |
+| `11_crawl_NAACL_by_OfficialAnthology.md` | NAACL 采集 |
+| `12_crawl_COLING_by_OfficialAnthology.md` | COLING 采集 |
+| `13_download_and_manage_PDFs.md` | PDF 下载与资产管理 |
+| `14_parse_and_quality_check_documents.md` | OCR 解析与质量检查 |
+| `15_process_research_topic.md` | Topic 到 Markdown 上层工作流 |
+| `All Sources Details.md` | 数据源字段与覆盖说明 |
 
 ---
 
@@ -1568,6 +1806,8 @@ scripts_md/n_crawl_XXX.md
 12. 写 scripts_md 操作文档；
 13. git commit 固化当前阶段。
 ```
+
+---
 
 ---
 
@@ -1665,309 +1905,163 @@ COLING 2025
 
 ---
 
+---
+
 ## 16. 当前边界与注意事项
 
-当前项目仍处于数据底座建设阶段，需要注意：
+当前已经得到可供下游处理的论文 Markdown，但尚未完成：
 
-1. 当前主要处理论文元数据，尚未全面处理 PDF 正文；
-2. `tags`、`toc_tree`、`references`、`baselines`、`benchmarks`、`metrics` 等字段多为预留字段；
-3. 当前去重主要依赖标题归一化，不能完全解决标题变体问题；
-4. 同一论文多源融合仍需要继续增强；
-5. 引文数量字段 `cite_numbers` 尚未形成稳定自动更新流程；
-6. PDF 下载、文本抽取、OCR 和 JSON 结构化仍是后续任务；
-7. 不同会议官网结构可能随年份变化，需要单独适配；
-8. OpenReview 不同会议、不同年份的 invitation、venue 字段可能不同，需要分别处理；
-9. AAAI 2022 使用旧版 WordPress 页面结构，与 2023–2026 的 OJS 平台不同；
-10. PMLR、ICML Official、ACL Anthology 等数据源的字段覆盖情况需要通过 `check_fields.py` 持续检查；
-11. 所有命令行脚本的最新参数应以 `--help` 输出和 `scripts_md/` 文档为准。
+- Markdown 结构清洗和章节识别；
+- chunk 切分与 chunk Schema；
+- embedding 生成与向量数据库；
+- BM25 / 向量混合召回；
+- 基于全文的 rerank；
+- 引用、表格、公式和实验要素的稳定结构化抽取；
+- 多篇论文并行 OCR 与多 GPU 调度；
+- 基于证据的论文对比、综述和最终回答生成。
+
+当前 Topic 召回只使用 MongoDB 元数据字段，因此它是候选初筛，不是最终语义检索结果。
+
+补充注意事项：
+
+- `top-k` 是目标处理数量；可处理论文不足或任务失败时，路径数可能更少；
+- `candidate-scan-limit` 用于无 PDF 候选补位，不等于 MongoDB 初始候选池；
+- 当前 OCR 并发主要位于单篇论文页面级，多篇论文仍按 Runner 顺序处理；
+- 分步执行 PDF 和 OCR 时需手动刷新文档可用性，Topic 编排会自动完成；
+- Topic 分数不是百分制，仅用于同一次查询内部排序；
+- 密钥和密码不得写入代码、README 或 Git。
 
 ---
 
 ## 17. Roadmap
 
-### 阶段 1：多源元数据采集 ✅（基本完成）
+建议按以下顺序继续：
 
-目标：
-
-```text
-稳定采集 AI 论文元数据，并统一入库。
-```
-
-已覆盖：
-
-- arXiv 日常增量；
-- OpenReview（ICLR / NeurIPS / ICML）；
-- PMLR Proceedings；
-- ICML Official；
-- AAAI Official；
-- ACL Anthology（ACL / EMNLP / NAACL / COLING）；
-
-后续扩展：
-
-- 其他 AI 会议（KDD、SIGIR、IJCAI、CVPR、ICCV 等）；
-- 期刊论文（JMLR、TACL 等）。
-
----
-
-### 阶段 2：PDF 下载与正文解析
-
-目标：
+1. 定义 `DocumentChunk` Schema 和稳定 chunk ID；
+2. 实现 Markdown 章节感知切分；
+3. 将 chunk 写入独立存储或 MongoDB 集合；
+4. 抽象 `EmbeddingBackend`，先接入一个本地 embedding 模型；
+5. 建立向量索引；
+6. 将词法召回与全文向量召回组合为混合检索；
+7. 对候选段落和论文做 rerank；
+8. 为 Research Agent 输出带 paper ID、页码和原文证据的结果。
 
 ```text
-从论文元数据进入论文全文层。
+阶段 1：多源元数据采集                 ✅ 基本完成
+阶段 2：PDF 下载、OCR 与质量检查       ✅ MVP 完成
+阶段 3：Topic 到 Markdown 编排         ✅ MVP 完成
+阶段 4：chunk、embedding 与混合检索    ⏳ 下一阶段
+阶段 5：科研事实抽取与证据组织          ⏳ 规划中
+阶段 6：Research Agent 回答与分析       ⏳ 规划中
 ```
-
-重点：
-
-- PDF 自动下载；
-- PDF 本地路径管理；
-- TXT 抽取；
-- JSON 结构化抽取；
-- 目录结构抽取；
-- 参考文献抽取；
-- 处理状态更新。
-
----
-
-### 阶段 3：科研事实抽取
-
-目标：
-
-```text
-从论文正文中抽取可查询的科研事实。
-```
-
-重点字段：
-
-- `pipeline`
-- `baselines`
-- `benchmarks`
-- `metrics`
-- `txt_contributions`
-- `txt_scientific_question`
-- `summary_short`
-- `summary_long`
-
-最终希望支持：
-
-```text
-查询某个 benchmark 被哪些论文使用；
-查询某个 baseline 被哪些论文对比；
-查询某个 metric 在哪些任务中出现；
-查询某类方法的发展脉络。
-```
-
----
-
-### 阶段 4：科研分析与图谱构建
-
-目标：
-
-```text
-将论文数据库升级为科研知识库。
-```
-
-重点：
-
-- paper-method 图谱；
-- paper-benchmark 图谱；
-- paper-baseline 图谱；
-- paper-metric 图谱；
-- paper-citation 图谱；
-- topic trend 分析；
-- venue trend 分析；
-- related work 自动证据表。
-
----
-
-### 阶段 5：Research Agent 支撑
-
-目标：
-
-```text
-为上层 Research Agent 提供可信数据基础。
-```
-
-可能能力：
-
-- 论文检索 Agent；
-- 相关工作整理 Agent；
-- benchmark 追踪 Agent；
-- baseline 推荐 Agent；
-- idea novelty 检查 Agent；
-- 研究趋势分析 Agent；
-- 论文阅读与问答 Agent。
 
 ---
 
 ## 18. 项目亮点
 
-本项目的亮点不是单个爬虫，而是逐步形成了一个面向 AI 论文的结构化数据内核：
+1. 元数据、PDF 和 OCR 文档共享稳定 paper ID；
+2. MongoDB 状态与文件资产可以互相核验；
+3. 长任务支持租约、重试、幂等和 Worker 所有权保护；
+4. OCR 资产记录来源 PDF SHA256、解析器版本和逐页报告；
+5. Topic 工作流复用已有资产，并跳过无 PDF 条件的候选；
+6. 相关性评分与处理状态解耦，排序可以稳定复现；
+7. CLI、测试和分阶段操作文档覆盖已完成主链路；
+8. 模块接口允许继续增加模型、GPU、Worker 和外部服务。
 
-1. **多源采集**：支持 arXiv、OpenReview（ICLR/NeurIPS/ICML）、PMLR、ICML Official、AAAI Official、ACL Anthology（ACL/EMNLP/NAACL/COLING）等 AI 论文核心来源；
-2. **统一建模**：使用统一 Schema 表示不同来源的论文记录；
-3. **多源融合**：同一篇论文可以合并来自不同来源的信息；
-4. **可追踪更新**：通过 `seen_in_sources`、`seen_in_categories`、`edit_logs` 记录数据来源与更新历史；
-5. **字段检查与查询**：支持对入库数据进行基础查询和质量检查；
-6. **面向后续抽取**：预留了摘要实体、目录、参考文献、baseline、benchmark、metric 等字段；
-7. **可扩展工程结构**：新增数据源时可以沿用 config-crawler-pipeline-script-doc 的开发模式；
-8. **适合 Research Agent**：可以作为后续科研智能体的数据基础设施。
+### 18.1 可扩展接口
 
-一句话概括：
+当前 MVP 特意保留了以下替换点：
 
-```text
-别人多数是在做"找论文、读论文、写综述"；
-本项目要做的是"把 AI 论文变成可查询、可分析、可推理的结构化科研知识库"。
-```
+| 接口 | 当前实现 | 可扩展方向 |
+|---|---|---|
+| `TopicRetriever` | MongoDB 词法召回 | BM25、向量召回、混合召回、重排序 |
+| `PageOCRBackend` | OpenAI-compatible GLM-OCR | 其他本地模型、云 API、负载均衡 |
+| `DocumentParser` | OCR 文档解析器 | 原生文本解析、版面模型、多模态解析 |
+| `DocumentQualityChecker` | 基础规则检查 | 版面质量、公式/表格完整性、模型判分 |
+| PDF URL Resolver | 固定来源优先级 | 新出版平台、代理或镜像来源 |
+| Repository / Runner | MongoDB 任务租约 | 多机 Worker、队列系统、分布式执行 |
+
+新增实现应依赖这些接口，不要把具体模型、API 地址或任务并发策略写死在业务流程中。
 
 ---
 
 ## 19. 开发原则
 
-本项目后续开发会逐步遵循以下原则：
+- 先完成可验证的 MVP，再扩展并发和模型能力；
+- 配置、接口、业务编排和存储职责分离；
+- 数据库状态与文件资产必须能够相互核验；
+- 所有长任务应支持幂等、租约、重试和断点恢复；
+- 大文件放在资产目录，不提交到 Git；
+- 不在代码和文档中写入密钥；
+- 每个阶段完成后运行测试并更新操作文档；
+- Schema、解析器、检索器和质量检查策略发生语义变化时升级版本号。
 
-1. 一步一步推进，每次只完成一个明确的小目标；
-2. 先小规模验证，再全量爬取；
-3. 先保证入库正确，再追求覆盖规模；
-4. 字段命名优先稳定，不轻易频繁变动；
-5. 新增字段后及时更新 Schema 迁移脚本；
-6. 新增数据源后补充 `scripts_md/` 操作文档；
-7. 所有来源字段尽量保留原始证据 URL；
-8. 不把大文本直接塞进 MongoDB，只存路径和状态；
-9. 对已入库数据尽量采用补全策略，避免误覆盖；
-10. 重要操作先 commit，再继续下一阶段开发。
+新增数据源、解析器、OCR 后端、检索器或质量规则时，应优先实现现有抽象接口；发生语义变化时升级稳定版本号。业务编排不应写死模型路径、API 地址或并发策略。
 
 ---
 
 ## 20. 常用命令速查
 
-初始化数据库：
-
 ```bash
+# 初始化 MongoDB 索引
+cd ~
 python -m ai4research.data_pipeline.scripts_py.init_db
+
+# 下载指定论文 PDF
+python -m ai4research.fulltext_pipeline.scripts_py.download_pdfs \
+  --paper-id <paper_id>
+
+# 手动同步文档任务可用性
+python -m ai4research.document_pipeline.scripts_py.refresh_document_availability \
+  --paper-id <paper_id> \
+  --execute
+
+# OCR 指定论文
+python -m ai4research.document_pipeline.scripts_py.parse_documents \
+  --paper-id <paper_id>
+
+# 检查指定论文文档质量
+python -m ai4research.document_pipeline.scripts_py.check_document_quality \
+  --paper-id <paper_id>
+
+# 预览 Topic 候选
+python -m ai4research.research_pipeline.scripts_py.process_research_topic \
+  --topic "agent memory" \
+  --top-k 3 \
+  --preview
+
+# 自动获得相关论文 Markdown
+python -m ai4research.research_pipeline.scripts_py.process_research_topic \
+  --topic "agent memory" \
+  --top-k 3
+
+# 运行测试
+cd ~/ai4research
+python -m pytest -q
 ```
 
-迁移 Schema：
+---
 
-```bash
-python -m ai4research.data_pipeline.scripts_py.migrate_schema
-```
-
-爬取 arXiv：
-
-```bash
-python -m ai4research.data_pipeline.scripts_py.crawl_arxiv_daily \
-  --start 2026-06-01 \
-  --end 2026-06-01
-
-# 指定 category
-python -m ai4research.data_pipeline.scripts_py.crawl_arxiv_daily \
-  --start 2026-06-01 \
-  --end 2026-06-01 \
-  --categories cs.AI cs.CL
-```
-
-爬取 OpenReview：
-
-```bash
-# ICLR
-python -m ai4research.data_pipeline.scripts_py.crawl_openreview \
-  --venue ICLR --year 2026
-
-# NeurIPS
-python -m ai4research.data_pipeline.scripts_py.crawl_openreview \
-  --venue NeurIPS --year 2025
-```
-
-爬取 AAAI Official：
-
-```bash
-python -m ai4research.data_pipeline.scripts_py.crawl_aaai_official --year 2026
-```
-
-爬取 ACL Anthology：
-
-```bash
-# ACL
-python -m ai4research.data_pipeline.scripts_py.crawl_acl_anthology \
-  --venue ACL --year 2025 --subtype long --delay-seconds 0.5
-
-# EMNLP
-python -m ai4research.data_pipeline.scripts_py.crawl_acl_anthology \
-  --venue EMNLP --year 2025 --subtype main --delay-seconds 0.5
-
-# NAACL
-python -m ai4research.data_pipeline.scripts_py.crawl_acl_anthology \
-  --venue NAACL --year 2025 --subtype long --delay-seconds 0.5
-
-# COLING
-python -m ai4research.data_pipeline.scripts_py.crawl_acl_anthology \
-  --venue COLING --year 2025 --subtype main --delay-seconds 0.5
-```
-
-查看其他爬虫参数：
-
-```bash
-python -m ai4research.data_pipeline.scripts_py.crawl_pmlr --help
-python -m ai4research.data_pipeline.scripts_py.crawl_icml_official --help
-python -m ai4research.data_pipeline.scripts_py.crawl_acl_anthology --help
-```
-
-查询论文：
-
-```bash
-# 模糊查询
-python -m ai4research.data_pipeline.scripts_py.query_paper \
-  --title "your paper title" --brief
-
-# 非空字段查询
-python -m ai4research.data_pipeline.scripts_py.query_paper \
-  --non-empty abstract --brief
-
-# 精确字段查询
-python -m ai4research.data_pipeline.scripts_py.query_paper \
-  --field accepted_by --value "ICLR 2026" --brief
-```
-
-检查字段：
-
-```bash
-python -m ai4research.data_pipeline.scripts_py.check_fields --help
-```
+当前项目已经从“多源论文元数据仓库”推进到“可按研究主题自动准备全文 Markdown 的 Research Agent 数据内核”。下一阶段的核心，是把这些文档转化为可引用、可检索、可排序的细粒度证据。
 
 ---
 
 ## 21. 当前项目状态总结
 
-当前项目已经完成了从"单一 arXiv 爬虫"到"多源论文数据底座"的全面升级。
+截至 2026-06-20，项目已经从“多源论文元数据仓库”推进到“可按研究主题自动准备全文 Markdown 的 Research Agent 数据内核”。
 
-目前主干能力包括：
+真实验证已经覆盖 Topic 召回、无 PDF 候选补位、PDF 复用或下载、GLM-OCR、逐页 Markdown、解析报告、质量检查、幂等重复运行和多路径输出。当前完整测试基线为 `7 passed`。
 
-```text
-MongoDB 数据库
-统一论文 Schema（含 arXiv / OpenReview / AAAI / Official / ACL Anthology 子结构）
-索引初始化
-Schema 迁移
-upsert 多源融合
-字段检查
-命令行查询
-arXiv 增量爬取
-OpenReview 会议论文采集（ICLR / NeurIPS / ICML）
-PMLR Proceedings 论文采集
-ICML Official 论文采集
-AAAI Official 论文采集（2022–2026）
-ACL Anthology 论文采集（ACL / EMNLP / NAACL / COLING，各 2–4 年）
-操作文档沉淀（13 篇 + 覆盖清单）
-```
-
-下一阶段最值得推进的是：
+下一阶段主线：
 
 ```text
-PDF 下载
-正文解析
-参考文献抽取
-baseline / benchmark / metric 抽取
-科研事实查询
-论文关系图谱
-Research Agent 支撑
+章节感知 chunk
+→ 稳定 chunk ID 与页码证据
+→ embedding
+→ 向量索引
+→ 词法 + 语义混合检索
+→ rerank
+→ 带论文与页码引用的 Agent 输出
 ```
+
+至此，数据采集、全文准备和 Topic 初筛已经连成一条可运行、可恢复、可扩展的 MVP 主链路。

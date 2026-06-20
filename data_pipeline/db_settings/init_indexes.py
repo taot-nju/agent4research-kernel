@@ -69,6 +69,63 @@ def init_indexes():
             name="pdf_task_lease_idx",
         )
 
+        # 文档解析任务索引
+        #
+        # 1. 通用文档任务领取。
+        papers.create_index(
+            [
+                ("document_asset.status", ASCENDING),
+                ("document_asset.attempts", ASCENDING),
+                ("pdf_asset.status", ASCENDING),
+                ("_id", ASCENDING),
+            ],
+            name="document_task_claim_idx",
+        )
+
+        # 2. 按会议领取文档任务。
+        papers.create_index(
+            [
+                ("accepted_by", ASCENDING),
+                ("document_asset.status", ASCENDING),
+                ("document_asset.attempts", ASCENDING),
+                ("pdf_asset.status", ASCENDING),
+                ("_id", ASCENDING),
+            ],
+            name="accepted_by_document_task_claim_idx",
+        )
+
+        # 3. 文档解析失败后的重试查询。
+        papers.create_index(
+            [
+                ("document_asset.status", ASCENDING),
+                ("document_asset.next_retry_at", ASCENDING),
+                ("document_asset.attempts", ASCENDING),
+                ("_id", ASCENDING),
+            ],
+            name="document_task_retry_idx",
+        )
+
+        # 4. 文档解析租约过期后的接管查询。
+        papers.create_index(
+            [
+                ("document_asset.status", ASCENDING),
+                ("document_asset.lease_until", ASCENDING),
+                ("document_asset.attempts", ASCENDING),
+                ("_id", ASCENDING),
+            ],
+            name="document_task_lease_idx",
+        )
+
+        # 5. 独立质量检查任务查询。
+        papers.create_index(
+            [
+                ("document_asset.status", ASCENDING),
+                ("document_asset.quality_status", ASCENDING),
+                ("_id", ASCENDING),
+            ],
+            name="document_quality_check_idx",
+        )
+
         # arXiv ID 唯一索引：
         # 只对非空 arxiv_id 生效，避免多个非 arXiv 论文或空 arxiv_id 发生唯一键冲突。
         papers.create_index(

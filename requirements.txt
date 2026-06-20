@@ -6,3 +6,5 @@ charset-normalizer==3.4.7
 rich==15.0.0
 tqdm==4.67.3
 openreview-py
+openai==2.43.0
+PyMuPDF==1.27.2.3
