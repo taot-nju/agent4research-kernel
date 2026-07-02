@@ -1,0 +1,87 @@
+{
+  "name": "agent-memory-trajectory-retrieval",
+  "version": "1",
+  "description": "真实论文候选集。相关性等级由人工阅读全文证据后确定，不使用当前检索分数生成标签。",
+  "cases": [
+    {
+      "case_id": "agent-memory-trajectory",
+      "query": "agent memory trajectory",
+      "description": "检索同时讨论 Agent memory，并明确涉及 trajectory 表示、利用或学习机制的论文。",
+      "tags": [
+        "agent",
+        "memory",
+        "trajectory"
+      ],
+      "candidate_paper_ids": [
+        "bac08e57bca3ab4862779711938c1597ccbfbd1d",
+        "080f386e2413ba0523f32b83d5d8e0a70b005731",
+        "193441da66abb762a59d0b26797d2d30970ee42b",
+        "e5bdd637f29bb97114f2a765505c648f76674876",
+        "e29263ebf02f67ba70425395fc307d2de84e4220"
+      ],
+      "judgments": [
+        {
+          "paper_id": "bac08e57bca3ab4862779711938c1597ccbfbd1d",
+          "relevance": 3,
+          "rationale": "LLM Agent、dual-scale world memory 与 trajectory-based exploration 都属于论文核心机制。",
+          "evidence_page_ranges": [
+            [2, 6]
+          ],
+          "relevant_chunk_ids": [
+            "7756dc2cf52b0ac40a1e509d66744e9fc7c09dbf86e2266a5183c6ad119c26e9",
+            "6b64b94c64fee0373967bd3fe58600888fbbb281552034552054570a838ea7e9",
+            "28b03a390f83e9d2fa5d8c00fd7bc55ccfd874ce2013406ff7164eb8e7483c2e"
+          ]
+        },
+        {
+          "paper_id": "080f386e2413ba0523f32b83d5d8e0a70b005731",
+          "relevance": 3,
+          "rationale": "Computer agent、trajectory-as-exemplar prompting 与 exemplar memory 均为 SYNAPSE 的核心组成。",
+          "evidence_page_ranges": [
+            [1, 1],
+            [3, 4]
+          ],
+          "relevant_chunk_ids": [
+            "156a848f56fa4df3d439c4f2fe4ac768a044baf6cb2bb73dd2ff1fb5c3ca1da2",
+            "7463809636af3f02b09f1b74e989955708c2e5a7ff08543bd951057b97acd338"
+          ]
+        },
+        {
+          "paper_id": "193441da66abb762a59d0b26797d2d30970ee42b",
+          "relevance": 2,
+          "rationale": "Agent memory 是论文核心；trajectory 被明确建模并用于功能比较，但并非主要记忆载体。",
+          "evidence_page_ranges": [
+            [1, 1],
+            [32, 34]
+          ],
+          "relevant_chunk_ids": [
+            "60ddd47c9cdd102cdf993990104da7001082415a4a00b15a6c5c7d5b6f5b952b",
+            "1e2fb4b1c73bdac305c050b300fefd96e4d1a40fb2677dc32db816927cc3ac22",
+            "b8379bda69ca9e03946b1954b25bf5be4edb5625cc5f678505c8511250de1427"
+          ]
+        },
+        {
+          "paper_id": "e5bdd637f29bb97114f2a765505c648f76674876",
+          "relevance": 0,
+          "rationale": "论文研究交通场景中的多智能体轨迹预测；agent 指交通参与者，且不研究 Agent memory。",
+          "evidence_page_ranges": [],
+          "relevant_chunk_ids": []
+        },
+        {
+          "paper_id": "e29263ebf02f67ba70425395fc307d2de84e4220",
+          "relevance": 3,
+          "rationale": "Memory graph、强化学习 Agent 与用于更新记忆的 trajectory segments 都属于核心机制。",
+          "evidence_page_ranges": [
+            [3, 5],
+            [28, 28]
+          ],
+          "relevant_chunk_ids": [
+            "caa9e6b6bf66e1f81d1915fb80443b2b89f5d97a8ae4110906ee32eb49105ed5",
+            "45156867230bed18a1a48b914c7272ae93ea8b400e23fdec309ddcd72d1ba8cf",
+            "384a4147b45cbc43abf23b8c1fbecbb70cb9289ffc48c7056b226b2ea9ac0975"
+          ]
+        }
+      ]
+    }
+  ]
+}

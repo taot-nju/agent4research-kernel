@@ -1,0 +1,162 @@
+{
+  "name": "dialogue-trajectory-clustering-retrieval",
+  "version": "1",
+  "description": "评估系统能否找到将多轮对话或 Agent 交互历史视为轨迹，并从轨迹中组织、提取或聚合记忆的研究。",
+  "cases": [
+    {
+      "case_id": "dialogue-trajectory-clustering",
+      "query": "LLM agent memory multi-turn dialogue trajectories trajectory clustering",
+      "description": "检索将多轮对话或 Agent 交互历史视为轨迹，并从多条轨迹中组织、提取、聚合或聚类记忆的论文。",
+      "tags": [
+        "agent-memory",
+        "multi-turn-dialogue",
+        "trajectory",
+        "clustering",
+        "experience-organization"
+      ],
+      "candidate_paper_ids": [
+        "c8a1c078d4dbe1d671f89bbffe7911d5e2293a7c",
+        "37e4d3586a0f1f265c5cf866a53e456973d3ddc2",
+        "310c7455f4cb768645a3ac1b8e44af51c8394501",
+        "570b1c34bf3e7933404e0539cde5fd7323af397d",
+        "7b8c64311437786773b8cfea5f778e6acb61df5f",
+        "e33e09888d0cc6259cddfdaec12b74a9985a8dfd",
+        "fa795e3cc41b9ace421fb917b64a49d8dfb465d6",
+        "697ff804af1ef68f68583a3f336db5cb84dfa99e",
+        "eea591f0ba2033c5623bb0c9e9c5f5f2446917dc",
+        "1f4f108cbd6db658f4d5379b1fc6d5e71d14878d"
+      ],
+      "judgments": [
+        {
+          "paper_id": "c8a1c078d4dbe1d671f89bbffe7911d5e2293a7c",
+          "relevance": 3,
+          "rationale": "从多条成功与失败 Agent 轨迹中提取、对比、合并并检索记忆，直接研究轨迹到记忆的组织过程。",
+          "evidence_page_ranges": [
+            [4, 5],
+            [21, 22]
+          ],
+          "relevant_chunk_ids": [
+            "eb82eb889d6c6961f9cd6ccba88f05bbbbe71b26459968b515356553a322d9f0",
+            "6ee6409203b920db9d0f25bf8e40e55d4d6ebcd5f6b5047f20280000754682fd",
+            "dfdbd8431b543eb5712c143dc55a12c95eb527c45e1d667d413864ce263eb96d"
+          ]
+        },
+        {
+          "paper_id": "37e4d3586a0f1f265c5cf866a53e456973d3ddc2",
+          "relevance": 3,
+          "rationale": "明确将 Agent trajectory 作为 episodic memory，并研究个性化 Agent 的记忆构建、检索和利用。",
+          "evidence_page_ranges": [
+            [8, 9],
+            [25, 26]
+          ],
+          "relevant_chunk_ids": [
+            "1163ef6c846c8267b0163401fcb2199a0fbb3179b7678f1e9c60496b5aa8205d",
+            "63bcd800333190974cc00fcc6a847ba6758f51a7515c10fb9b4737ebf6877167",
+            "5416cb3b76ca522590017824d6650fa78aba7e1a1bb8f8b89d914592d40f186f"
+          ]
+        },
+        {
+          "paper_id": "310c7455f4cb768645a3ac1b8e44af51c8394501",
+          "relevance": 2,
+          "rationale": "研究跨多段 conversation 的长期记忆，并将对话形式化为 utterance 序列，但没有进行轨迹聚类。",
+          "evidence_page_ranges": [
+            [2, 3]
+          ],
+          "relevant_chunk_ids": [
+            "cc6dbaf06326f2230b2bbfb534b8145c53ef89f30253e846e8092f4bcb6fe7dc",
+            "a0f77077bace8aa4bfc4656a1b4d6c46a7f5b4512bccb71cbb31b0e1d21ad37b"
+          ]
+        },
+        {
+          "paper_id": "570b1c34bf3e7933404e0539cde5fd7323af397d",
+          "relevance": 2,
+          "rationale": "多轮用户 Agent 轨迹是核心研究对象，但轨迹主要用于训练数据合成，而非记忆组织。",
+          "evidence_page_ranges": [
+            [1, 1],
+            [3, 6],
+            [11, 11]
+          ],
+          "relevant_chunk_ids": [
+            "e48e367e7b5346fdc2eef18bb0869db3d554d6365989b4e4ac3ecca4598c7755",
+            "c544e0262ab242921791a66c29223156a5b4b2f69bc2f59f06364fc2d97cb632",
+            "39c72588fa02dfddcee231da7f839378521d8d18bee361326732ced86578d5d4",
+            "5ffa3e21327da79eb6030f8eaf0cffce5fb34aa9bb3a04986cc291a69650683e"
+          ]
+        },
+        {
+          "paper_id": "7b8c64311437786773b8cfea5f778e6acb61df5f",
+          "relevance": 2,
+          "rationale": "以图结构组织工作流记忆和历史交互记忆，但不研究多轮对话轨迹聚类。",
+          "evidence_page_ranges": [
+            [3, 5]
+          ],
+          "relevant_chunk_ids": [
+            "cbaf16b155f768649d4b383a82fdd81aa517b358a5651a4cab756840fbfee9d7",
+            "391d79b4f466a7b923a3d4b44ddaaa615581ce0c7e034395836cc28b33107c53"
+          ]
+        },
+        {
+          "paper_id": "e33e09888d0cc6259cddfdaec12b74a9985a8dfd",
+          "relevance": 1,
+          "rationale": "涉及多轮 Tool Agent 对话和用户行为聚类，但聚类对象不是记忆中的对话轨迹。",
+          "evidence_page_ranges": [
+            [1, 3],
+            [15, 16]
+          ],
+          "relevant_chunk_ids": [
+            "0f2debb99a44a5203f9226f19f03e477049466f88e4e3a6b13291cf7c7093c0a",
+            "9397ceb77e1223d576f27b208dfaa33ea8cb629d49afc51c145da70789a9b4ec",
+            "c0ad8c95002f1df027cbddf63f96ec97b670769833ee8468c9facb64607eb32e"
+          ]
+        },
+        {
+          "paper_id": "fa795e3cc41b9ace421fb917b64a49d8dfb465d6",
+          "relevance": 1,
+          "rationale": "收集并事后重标注 LLM Agent 轨迹用于训练，但不研究记忆或对话轨迹组织。",
+          "evidence_page_ranges": [
+            [1, 2],
+            [4, 5]
+          ],
+          "relevant_chunk_ids": [
+            "f49e3073a31eb7a40536bb7487ba9f83527aa2e21f30cc18d846bb5f5c5087f0",
+            "14ee6fe2732cbc99450ba609e56ed3eb31968ba32c642e00150a117e31acd6f4",
+            "2b8cd67ba1fb56ba73c59bba4e804cb13d6fc87d6f289bb8db8ceefeda05579b"
+          ]
+        },
+        {
+          "paper_id": "697ff804af1ef68f68583a3f336db5cb84dfa99e",
+          "relevance": 1,
+          "rationale": "生成多样化 Agent experiences 和 trajectories 用于强化学习，不研究长期记忆或轨迹聚类。",
+          "evidence_page_ranges": [
+            [4, 5],
+            [9, 10]
+          ],
+          "relevant_chunk_ids": [
+            "d0515a9b515429ec35347ee6dcc3fefe8ecf32a8583d63c5ef431da168281544",
+            "45d876bc5f8442b681f2139dd7f03dac23f9212a41f5dea566b79acf448579da"
+          ]
+        },
+        {
+          "paper_id": "eea591f0ba2033c5623bb0c9e9c5f5f2446917dc",
+          "relevance": 1,
+          "rationale": "生成多轮、多智能体医疗诊断对话，但不研究 Agent memory 或轨迹组织。",
+          "evidence_page_ranges": [
+            [2, 3],
+            [7, 8]
+          ],
+          "relevant_chunk_ids": [
+            "44e72dd80526d760fbb6be6616c2904a77b4a7747bebd4fe5ba8719acd8e33fc",
+            "b84c1f0ee1a6856a95653d9fb67cb443aacd1098acf20d63159ead48d84d5c51"
+          ]
+        },
+        {
+          "paper_id": "1f4f108cbd6db658f4d5379b1fc6d5e71d14878d",
+          "relevance": 0,
+          "rationale": "研究传统多智能体强化学习中的状态轨迹与相对表示，不涉及 LLM 对话记忆。",
+          "evidence_page_ranges": [],
+          "relevant_chunk_ids": []
+        }
+      ]
+    }
+  ]
+}

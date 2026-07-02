@@ -1,0 +1,160 @@
+{
+  "name": "recursive-inquiry-refinement-retrieval",
+  "version": "1",
+  "description": "评估系统能否找到通过反思、批评、反馈和反复修订来丰富或校正初始输出的研究。",
+  "cases": [
+    {
+      "case_id": "recursive-inquiry-refinement",
+      "query": "LLM iterative critique reflection refinement dialogue self-improvement recursive revision",
+      "description": "检索形成初始想法、发现不足、生成 critique 或反馈、修订并再次评价这一递归改进循环的论文，作为苏格拉底式追问和研究问题迭代丰富的邻近方向。",
+      "tags": [
+        "iterative-refinement",
+        "critique",
+        "reflection",
+        "self-correction",
+        "recursive-revision",
+        "self-improvement"
+      ],
+      "candidate_paper_ids": [
+        "210d75e9c218481a006c0d9b92cc34e38bc75641",
+        "dfacfbf1baf6f4e4f5da78e3ffb12b159d559bb4",
+        "3ba475ad7fd38320bdd0c2e9d728a377a9fc48f8",
+        "e3b80f43dedbc83aa8a60ce2c3441d91a2ca2ef9",
+        "675ca12bf31ac47709e4839056498cc3943a6eba",
+        "332ba657e352fc8a6370a32613eec7a30e4445b4",
+        "55830b7b7b11ef7c5c7888ed4791dca80249a9ea",
+        "80b240640c68dd1b8fd3c0b1e0164c9cb1d0ea73",
+        "3ea4307c59f1988323ab557d1bbf6e905eed76ce",
+        "8b07e86fa22024333df36c093d8ea4e7bb910a7c"
+      ],
+      "judgments": [
+        {
+          "paper_id": "675ca12bf31ac47709e4839056498cc3943a6eba",
+          "relevance": 3,
+          "rationale": "训练 critic 生成准确且有帮助的反馈，并让 actor 根据 critique 反复修订，形成明确的批评—改进循环。",
+          "evidence_page_ranges": [
+            [2, 4],
+            [8, 9]
+          ],
+          "relevant_chunk_ids": [
+            "ce08d47e3a5eb863cc22debab00d2ec59ac798d1cc0861f2e963dcbb6e775699",
+            "18562c8015ee3d7333c71ff102edb280261f4283f20766a018f0b682dedd1bb9",
+            "570fe2a9c14860ebedcd9affe30b4ed147604505ec7dd6a9e64c039a40b9bbfb"
+          ]
+        },
+        {
+          "paper_id": "3ba475ad7fd38320bdd0c2e9d728a377a9fc48f8",
+          "relevance": 3,
+          "rationale": "先进行逻辑概念拆解，再通过一致性检查提供定向反馈，并循环修正形式化结果。",
+          "evidence_page_ranges": [
+            [3, 3],
+            [6, 7]
+          ],
+          "relevant_chunk_ids": [
+            "da3049f3abfc590ca5072c6ccce97c5e6653b586d8981279bc889dab14594f17",
+            "cfb27cdae88cc9e8dbcef0e32c68bb83996d4c52e7f0ef348679a4e7c75bffb1"
+          ]
+        },
+        {
+          "paper_id": "55830b7b7b11ef7c5c7888ed4791dca80249a9ea",
+          "relevance": 3,
+          "rationale": "模型在最终输出前主动判断是否需要 refinement，并执行修订，直接研究主动迭代改进。",
+          "evidence_page_ranges": [
+            [1, 1],
+            [5, 6]
+          ],
+          "relevant_chunk_ids": [
+            "7b995409a4972e4f2361453de4a0670ea872b49dd05dc638d7b35fe80fd082ea",
+            "1bc28cd9ed798afb9acc73339def21d294db3ad087880b3965fdedba94ac3bf6"
+          ]
+        },
+        {
+          "paper_id": "3ea4307c59f1988323ab557d1bbf6e905eed76ce",
+          "relevance": 2,
+          "rationale": "通过 reflector 等组件持续演化上下文并实现自我改进，但不以提问式对话丰富问题为核心。",
+          "evidence_page_ranges": [
+            [1, 3],
+            [19, 20]
+          ],
+          "relevant_chunk_ids": [
+            "d546eb2d1b93d606316ebe4ca59be167fb2d98375a7af135548bea48782a4839",
+            "fb6e3d566f5c81b709ab6e20bbd2b9bed0aeafde406c7fa0867d0a1efcb9e438",
+            "24c627ad3070295b3787c2028673cce2bb8bf23c7af1ed90b0a59331be8a1478"
+          ]
+        },
+        {
+          "paper_id": "8b07e86fa22024333df36c093d8ea4e7bb910a7c",
+          "relevance": 2,
+          "rationale": "系统评价模型依据不同强度反馈进行修订的能力，但本身是 benchmark，而非递归提问方法。",
+          "evidence_page_ranges": [
+            [3, 3],
+            [13, 14]
+          ],
+          "relevant_chunk_ids": [
+            "f4f4be5858ed14e4b330bfbd214b4737d7c6ad35b024590af3d3acaa082e211b",
+            "90da1a183c80e35902e9c69ce8a53458fb5c4f0cec624afd559bda319c86a9b1"
+          ]
+        },
+        {
+          "paper_id": "dfacfbf1baf6f4e4f5da78e3ffb12b159d559bb4",
+          "relevance": 2,
+          "rationale": "通过不确定性检测和外部指导持续纠错，但更偏向生成过程中的错误修复。",
+          "evidence_page_ranges": [
+            [2, 3],
+            [7, 8]
+          ],
+          "relevant_chunk_ids": [
+            "38bf0305b895a919d6183852771c2427a8171d447763d4bc02ccf132d1ddf1e6",
+            "eb7a2b2a265b8a9ad95891573957b2270510b4dcdc54a05c412bf73f7cf9d8fe",
+            "19e56deed9d32aa725d59cec7c5594d751c91889525c8cca665a09f24aba4381"
+          ]
+        },
+        {
+          "paper_id": "80b240640c68dd1b8fd3c0b1e0164c9cb1d0ea73",
+          "relevance": 1,
+          "rationale": "通过跨 episode 奖励实现 in-context improvement，但没有显式 critique—revision 对话。",
+          "evidence_page_ranges": [
+            [5, 5],
+            [8, 8]
+          ],
+          "relevant_chunk_ids": [
+            "3532438a8c4c8f6bf0b8f0434bd295009fcfd2225a4c0a8707619f6b074bc9f2",
+            "a9c85626d8eaadefaab61f235befc5bf3a61d1bb7019ca1a4aafe8689199eaa3"
+          ]
+        },
+        {
+          "paper_id": "332ba657e352fc8a6370a32613eec7a30e4445b4",
+          "relevance": 1,
+          "rationale": "使用 evaluator 反馈迭代修订视频回答，但 refinement 只是构造视频监督数据的局部机制。",
+          "evidence_page_ranges": [
+            [2, 4]
+          ],
+          "relevant_chunk_ids": [
+            "8a38e2c7ff0e9ed2b4bd910942ffc74baa9ca97467930cb204e6f13a577bacbc",
+            "75705f0dd8f2676fd144fff5b522ee61aa17e40d687f398279ea7f35022a5ab7"
+          ]
+        },
+        {
+          "paper_id": "e3b80f43dedbc83aa8a60ce2c3441d91a2ca2ef9",
+          "relevance": 1,
+          "rationale": "通过搜索与评估修改 Coding Agent 本身，不是围绕问题或回答内容进行递归丰富。",
+          "evidence_page_ranges": [
+            [3, 3],
+            [21, 22]
+          ],
+          "relevant_chunk_ids": [
+            "07f3947d293c3f06b496fed13ad39917aafbb389834fa9d01417a9e7f24ee7e0",
+            "6b51f3c31bf6d8d5b2773f9f9c55a74957746ec01a6fd7676db90eb002c90d41"
+          ]
+        },
+        {
+          "paper_id": "210d75e9c218481a006c0d9b92cc34e38bc75641",
+          "relevance": 0,
+          "rationale": "属于神经组合优化和多智能体策略学习，不是 LLM 的反馈式内容 refinement。",
+          "evidence_page_ranges": [],
+          "relevant_chunk_ids": []
+        }
+      ]
+    }
+  ]
+}

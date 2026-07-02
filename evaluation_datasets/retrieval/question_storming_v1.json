@@ -1,0 +1,145 @@
+{
+  "name": "question-storming-retrieval",
+  "version": "1",
+  "description": "评估系统能否找到从基础陈述主动发现信息缺口、生成澄清问题、扩展问题空间并支持研究创意的工作。",
+  "cases": [
+    {
+      "case_id": "question-storming",
+      "query": "LLM proactive question asking clarifying information seeking problem posing research ideation",
+      "description": "检索从一个初始陈述出发，通过为什么、为什么不是、如果怎样、如何才能等多样问题扩展研究空间的论文，并覆盖主动澄清、问题发现和问题扩展等邻近方向。",
+      "tags": [
+        "question-storming",
+        "question-generation",
+        "clarifying-questions",
+        "problem-posing",
+        "information-seeking",
+        "research-ideation"
+      ],
+      "candidate_paper_ids": [
+        "889506a2909e1e86488728462cfc77f1adb70468",
+        "2f4213085173c6a12bbcf714a67740552ebfb7d2",
+        "d510792b11bc377714dafc6961aa0d92642d838a",
+        "3782704a8467643f60267e43426f1a98b3b58400",
+        "da140c46f34eda0a5101eec6d941a0ee167031d8",
+        "748eacd74baa35f3984b5811d9ee1cc3d5f5af22",
+        "b9aef419551682d4142ac909164c2339ce33a103",
+        "0cd435de4262a8e551e383a59e4f86c4ef8c1118",
+        "a932a38eaa18f9ed1104947411ad918562d25138",
+        "810d117b5dad395c699fcd76ddf8df0b624649b8"
+      ],
+      "judgments": [
+        {
+          "paper_id": "3782704a8467643f60267e43426f1a98b3b58400",
+          "relevance": 2,
+          "rationale": "根据条件图识别缺失信息并主动生成 clarification questions，但目标是补齐回答条件，而非发散研究问题。",
+          "evidence_page_ranges": [
+            [1, 2],
+            [5, 8]
+          ],
+          "relevant_chunk_ids": [
+            "459b909f8ff0aed20428258d177d0e0d98677cb9b95126523b3fb2b29675ffed",
+            "776274bda783c599f009e213019901d62dafbf40d00874d6500d1cee8dc81586",
+            "2f84926a049d35dd523a330ce9ab1c94f5ab735fbac31f2d70654ca897eda26e"
+          ]
+        },
+        {
+          "paper_id": "2f4213085173c6a12bbcf714a67740552ebfb7d2",
+          "relevance": 2,
+          "rationale": "主动连续提问以发现用户未表达的偏好，但不是生成多样化研究问题。",
+          "evidence_page_ranges": [
+            [58, 60]
+          ],
+          "relevant_chunk_ids": [
+            "8e0c252b62b25f44a99f42feead3cdc17c9b9ea82fab31867258777ea3312bab",
+            "acb2187dbe202c8f2d4d757cbfa27717c19c9818a8d0e3246a86c298466ddef2"
+          ]
+        },
+        {
+          "paper_id": "d510792b11bc377714dafc6961aa0d92642d838a",
+          "relevance": 1,
+          "rationale": "通过检索与验证把已有 formal question 扩展得更复杂，属于问题扩展的邻近方向。",
+          "evidence_page_ranges": [
+            [1, 2]
+          ],
+          "relevant_chunk_ids": [
+            "42901c4d7a973ebf68d0e8f1d3b61f36a9f96a35eea3c4b85f0d6db31d63f86c",
+            "59df3ac4e5509ca3b5c73f1332817de69dbf539b70373a45028ca4f62e218d08"
+          ]
+        },
+        {
+          "paper_id": "a932a38eaa18f9ed1104947411ad918562d25138",
+          "relevance": 1,
+          "rationale": "根据用户和环境状态主动建议潜在任务，但不是主动生成研究问题。",
+          "evidence_page_ranges": [
+            [3, 4]
+          ],
+          "relevant_chunk_ids": [
+            "29fc9f161ca8a492650cdc368ec9f43f24d92329f03b488170dbec230787a97f",
+            "c816c8755411ae21c17f6a98671ab2ab226e98fc9cd3ebdff608472d830fe2a8"
+          ]
+        },
+        {
+          "paper_id": "889506a2909e1e86488728462cfc77f1adb70468",
+          "relevance": 1,
+          "rationale": "Research Agent 主动搜寻真实世界未索引信息，但输入仍是既定问题，不负责生成探索问题。",
+          "evidence_page_ranges": [
+            [1, 1],
+            [5, 5]
+          ],
+          "relevant_chunk_ids": [
+            "e5d72223bafd6ea5054e2939cd508dc616998d8187fdcf00d140d6a5b9c3f66f",
+            "f6bb50167806e46795001b22b388f645b5f7c3e41ca0be01c1d6b8b69960b355"
+          ]
+        },
+        {
+          "paper_id": "da140c46f34eda0a5101eec6d941a0ee167031d8",
+          "relevance": 1,
+          "rationale": "优化 Web Agent 的信息搜索效率与信息密度，但没有生成新的探索问题。",
+          "evidence_page_ranges": [
+            [1, 1],
+            [10, 10]
+          ],
+          "relevant_chunk_ids": [
+            "93e025b92f87e5e26ac54bb9ed05ae0618c3ef626b91ac52bd6952ec0d84a7db",
+            "90082b18a59ff7640c33ea011959062345f6f58afdf964f4fef911eddc08bb59"
+          ]
+        },
+        {
+          "paper_id": "748eacd74baa35f3984b5811d9ee1cc3d5f5af22",
+          "relevance": 1,
+          "rationale": "综合多来源信息形成洞见，但没有问题发现或问题生成机制。",
+          "evidence_page_ranges": [
+            [1, 2],
+            [10, 10]
+          ],
+          "relevant_chunk_ids": [
+            "af8dd5eea08ae9f82516e7480cd343ebc99113a177bf4d0e09e4502486c615e7",
+            "484b1b658fa7b455d5031cd1d25a7b28e97417f4c6ab6e341aee5fda0e4ebc04",
+            "a07217b0c3beac6d9a33cad5875cab5e5796e72ad28565c9815440ade668c7d7"
+          ]
+        },
+        {
+          "paper_id": "b9aef419551682d4142ac909164c2339ce33a103",
+          "relevance": 0,
+          "rationale": "评价 Deep Research Agent 的输出与能力，不负责发现或生成新的研究问题。",
+          "evidence_page_ranges": [],
+          "relevant_chunk_ids": []
+        },
+        {
+          "paper_id": "810d117b5dad395c699fcd76ddf8df0b624649b8",
+          "relevance": 0,
+          "rationale": "研究运筹学推理过程奖励，与问题风暴和研究问题生成无关。",
+          "evidence_page_ranges": [],
+          "relevant_chunk_ids": []
+        },
+        {
+          "paper_id": "0cd435de4262a8e551e383a59e4f86c4ef8c1118",
+          "relevance": 0,
+          "rationale": "研究算法对社会学习过程的控制，与问题生成或研究创意无关。",
+          "evidence_page_ranges": [],
+          "relevant_chunk_ids": []
+        }
+      ]
+    }
+  ]
+}

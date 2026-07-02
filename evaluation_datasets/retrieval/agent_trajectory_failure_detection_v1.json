@@ -1,0 +1,154 @@
+{
+  "name": "agent-trajectory-failure-detection-retrieval",
+  "version": "1",
+  "description": "评估系统能否找到分析 LLM Agent 执行轨迹、检测失败步骤、定位故障来源并利用失败经验的研究。",
+  "cases": [
+    {
+      "case_id": "agent-trajectory-failure-detection",
+      "query": "LLM agent trajectory anomaly detection failure diagnosis outlier memory",
+      "description": "检索对 LLM Agent 或多智能体执行轨迹进行异常检测、失败定位、错误归因、事后分析或记忆提取的论文。",
+      "tags": [
+        "llm-agent",
+        "trajectory",
+        "failure-detection",
+        "fault-localization",
+        "anomaly-detection",
+        "failure-memory"
+      ],
+      "candidate_paper_ids": [
+        "7b8c64311437786773b8cfea5f778e6acb61df5f",
+        "46b4a4700d14c6dad972ef3aa1b49aee9031c77f",
+        "2522f99ff29970f1aa295a2e37cfeb506e15c38b",
+        "c8a1c078d4dbe1d671f89bbffe7911d5e2293a7c",
+        "fa795e3cc41b9ace421fb917b64a49d8dfb465d6",
+        "cd4eb31961a1eda5f2806c6d7d73e5c9de8b2a84",
+        "a490610e733770658162c5c0738d3e8b88c1eca5",
+        "d495948cc72094cc19a90e14982a086a07d597a8",
+        "3eabba2ce1a5b5ffc3649d49d1e69475e3f74054",
+        "2b4e5f2124e1a02c3d63d887cd58d3eaa496d8ae"
+      ],
+      "judgments": [
+        {
+          "paper_id": "46b4a4700d14c6dad972ef3aa1b49aee9031c77f",
+          "relevance": 3,
+          "rationale": "直接对多智能体执行 trace 进行干预，通过修改特定 Agent 和特定步骤验证并定位故障来源。",
+          "evidence_page_ranges": [
+            [21, 22]
+          ],
+          "relevant_chunk_ids": [
+            "7780a90138d962ce9165dc4b31a05a2deba8d6ac0db50187e79c40d4aeeba21f",
+            "ef54639b5528848f74a7725e713b4a60c943acbc16f6c850759187e595626ce1"
+          ]
+        },
+        {
+          "paper_id": "c8a1c078d4dbe1d671f89bbffe7911d5e2293a7c",
+          "relevance": 3,
+          "rationale": "对成功与失败轨迹进行对比，从失败轨迹中提取错误模式和预防策略，并将其保存为可检索记忆。",
+          "evidence_page_ranges": [
+            [4, 5],
+            [21, 22]
+          ],
+          "relevant_chunk_ids": [
+            "eb82eb889d6c6961f9cd6ccba88f05bbbbe71b26459968b515356553a322d9f0",
+            "6ee6409203b920db9d0f25bf8e40e55d4d6ebcd5f6b5047f20280000754682fd",
+            "dfdbd8431b543eb5712c143dc55a12c95eb527c45e1d667d413864ce263eb96d"
+          ]
+        },
+        {
+          "paper_id": "2b4e5f2124e1a02c3d63d887cd58d3eaa496d8ae",
+          "relevance": 2,
+          "rationale": "检测 Agent 行为错误并触发回退或干预，但核心问题是缓解多模态 verifier 的 agreement bias。",
+          "evidence_page_ranges": [
+            [2, 2],
+            [9, 10]
+          ],
+          "relevant_chunk_ids": [
+            "7cb8d73e42887b8ccbd25793eb5719f5c280cf4ab9eac55e2469f4d3a71cb422",
+            "df978d8b0b3f73742f5deac3c184a1a3c81a300bd5a6f674b931e113f3db4839"
+          ]
+        },
+        {
+          "paper_id": "d495948cc72094cc19a90e14982a086a07d597a8",
+          "relevance": 2,
+          "rationale": "分析多智能体隐私仿真轨迹中的成功模式和 failure modes，并根据历史轨迹迭代改进任务。",
+          "evidence_page_ranges": [
+            [29, 31]
+          ],
+          "relevant_chunk_ids": [
+            "d5d28659c9fedd2d3b496c9e81a2f9840805c511a625a23efc8359d4423de7a6",
+            "2b997271af144b4d520227d905197450ab6f684033be4535ea5a513b01ebeb83",
+            "4d3cc8e3592a10509913684c3997b373b357b59c8519d04be9e115c180b30955"
+          ]
+        },
+        {
+          "paper_id": "fa795e3cc41b9ace421fb917b64a49d8dfb465d6",
+          "relevance": 2,
+          "rationale": "对完整 LLM Agent 轨迹进行事后目标识别和 action relevance 标注，但目标是构造成功训练样本。",
+          "evidence_page_ranges": [
+            [1, 1],
+            [3, 5]
+          ],
+          "relevant_chunk_ids": [
+            "f49e3073a31eb7a40536bb7487ba9f83527aa2e21f30cc18d846bb5f5c5087f0",
+            "4a389e07825d47931d147aac58880c3d8bd66d310ae83c58ffdd3a8ccc60af1e",
+            "c12a11fbd2bd701310dc2326b4f944e3d0351604b79f37ce19155e14c6775048"
+          ]
+        },
+        {
+          "paper_id": "cd4eb31961a1eda5f2806c6d7d73e5c9de8b2a84",
+          "relevance": 1,
+          "rationale": "包含 Agent 轨迹、错误处理和失败案例分析，但没有专门的失败检测或故障定位机制。",
+          "evidence_page_ranges": [
+            [24, 24],
+            [31, 33]
+          ],
+          "relevant_chunk_ids": [
+            "e61fee875586315cf1f976d5b0e29f3d1b86003432369fb4decbf0a7d3f0344b",
+            "70932128f41793e6af6712d7a57b86281e0aaf22ef964a2ad2ec5f2b295e8028",
+            "c1c48b18c0330c57b5526a66624703a29d32b30d0f59b13b939838fd1e2f1d18"
+          ]
+        },
+        {
+          "paper_id": "7b8c64311437786773b8cfea5f778e6acb61df5f",
+          "relevance": 1,
+          "rationale": "包含工作流和历史交互记忆图，但不研究 Agent 轨迹异常检测或故障诊断。",
+          "evidence_page_ranges": [
+            [3, 5]
+          ],
+          "relevant_chunk_ids": [
+            "cbaf16b155f768649d4b383a82fdd81aa517b358a5651a4cab756840fbfee9d7",
+            "391d79b4f466a7b923a3d4b44ddaaa615581ce0c7e034395836cc28b33107c53"
+          ]
+        },
+        {
+          "paper_id": "3eabba2ce1a5b5ffc3649d49d1e69475e3f74054",
+          "relevance": 1,
+          "rationale": "进行 LLM Agent 轨迹采样和训练，但不负责检测异常步骤或定位失败原因。",
+          "evidence_page_ranges": [
+            [3, 3],
+            [7, 9]
+          ],
+          "relevant_chunk_ids": [
+            "bcb9e674fb4ea7a830af2636505ac85128d9b6585725b819e4fe39f397842966",
+            "7a7e616ac21b8644677e8d19ca1cf48de6e68ae61b0486389776c4de2f111237",
+            "8008e9d3d1af6679463a50dc12a582911d5684fc7c908679e486405148fdfc2d"
+          ]
+        },
+        {
+          "paper_id": "a490610e733770658162c5c0738d3e8b88c1eca5",
+          "relevance": 0,
+          "rationale": "研究一般时间序列异常检测，与 LLM Agent 执行轨迹及故障定位无关。",
+          "evidence_page_ranges": [],
+          "relevant_chunk_ids": []
+        },
+        {
+          "paper_id": "2522f99ff29970f1aa295a2e37cfeb506e15c38b",
+          "relevance": 0,
+          "rationale": "研究视频异常检测，与 LLM Agent 执行轨迹及失败诊断无关。",
+          "evidence_page_ranges": [],
+          "relevant_chunk_ids": []
+        }
+      ]
+    }
+  ]
+}

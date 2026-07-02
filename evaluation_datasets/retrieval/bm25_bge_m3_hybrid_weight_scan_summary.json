@@ -1,0 +1,111 @@
+{
+  "name": "bm25-bge-m3-hybrid-weight-scan",
+  "version": 1,
+  "recommended": {
+    "run_name": "w070_030",
+    "primary": "bm25",
+    "secondary": "bge-m3",
+    "primary_weight": 0.7,
+    "secondary_weight": 0.3,
+    "reason": "Keeps BM25-level macro_MRR while improving macro_AP, P@5, R@5, and nDCG@5."
+  },
+  "best_by_metric": {
+    "macro_ap": "w050_050",
+    "macro_ndcg_at_5": "w070_030",
+    "macro_mrr": "w070_030"
+  },
+  "runs": [
+    {
+      "name": "bm25",
+      "label": "BM25 baseline",
+      "kind": "baseline",
+      "macro_mrr": 0.9375,
+      "macro_ap": 0.805244708994709,
+      "macro_precision_at_5": 0.6,
+      "macro_recall_at_5": 0.7125,
+      "macro_ndcg_at_5": 0.8070911293129593,
+      "summary_path": "/home/tao/ai4research/evaluation_datasets/retrieval/retrieval_suite_v1_bm25_baseline_summary.json"
+    },
+    {
+      "name": "bge_m3",
+      "label": "bge-m3 vector",
+      "kind": "baseline",
+      "macro_mrr": 0.875,
+      "macro_ap": 0.7734325396825399,
+      "macro_precision_at_5": 0.6749999999999999,
+      "macro_recall_at_5": 0.775,
+      "macro_ndcg_at_5": 0.7397029683926981,
+      "summary_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bge_m3_vector_v1_truncated_3200/retrieval_suite_v1_bge_m3_truncated_3200_summary.json"
+    },
+    {
+      "name": "w050_050",
+      "label": "Hybrid 0.5 / 0.5",
+      "kind": "hybrid",
+      "macro_mrr": 0.875,
+      "macro_ap": 0.8230158730158731,
+      "macro_precision_at_5": 0.6499999999999999,
+      "macro_recall_at_5": 0.7541666666666668,
+      "macro_ndcg_at_5": 0.8145993249518679,
+      "summary_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_hybrid_v1/retrieval_suite_v1_bm25_bge_m3_w050_050_summary.json"
+    },
+    {
+      "name": "w060_040",
+      "label": "Hybrid 0.6 / 0.4",
+      "kind": "hybrid",
+      "macro_mrr": 0.875,
+      "macro_ap": 0.8144345238095239,
+      "macro_precision_at_5": 0.6499999999999999,
+      "macro_recall_at_5": 0.7541666666666668,
+      "macro_ndcg_at_5": 0.8147248549455565,
+      "summary_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_hybrid_v1_w060_040/retrieval_suite_v1_bm25_bge_m3_w060_040_summary.json"
+    },
+    {
+      "name": "w065_035",
+      "label": "Hybrid 0.65 / 0.35",
+      "kind": "hybrid",
+      "macro_mrr": 0.875,
+      "macro_ap": 0.8144345238095239,
+      "macro_precision_at_5": 0.6499999999999999,
+      "macro_recall_at_5": 0.7541666666666668,
+      "macro_ndcg_at_5": 0.8169801417969602,
+      "summary_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_hybrid_v1_w065_035/retrieval_suite_v1_bm25_bge_m3_w065_035_summary.json"
+    },
+    {
+      "name": "w070_030",
+      "label": "Hybrid 0.7 / 0.3",
+      "kind": "hybrid",
+      "macro_mrr": 0.9375,
+      "macro_ap": 0.8227678571428572,
+      "macro_precision_at_5": 0.6249999999999999,
+      "macro_recall_at_5": 0.7333333333333334,
+      "macro_ndcg_at_5": 0.8234775877383708,
+      "summary_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_hybrid_v1_w070_030/retrieval_suite_v1_bm25_bge_m3_w070_030_summary.json"
+    },
+    {
+      "name": "w075_025",
+      "label": "Hybrid 0.75 / 0.25",
+      "kind": "hybrid",
+      "macro_mrr": 0.9375,
+      "macro_ap": 0.7974702380952381,
+      "macro_precision_at_5": 0.6249999999999999,
+      "macro_recall_at_5": 0.7333333333333334,
+      "macro_ndcg_at_5": 0.8165343025007621,
+      "summary_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_hybrid_v1_w075_025/retrieval_suite_v1_bm25_bge_m3_w075_025_summary.json"
+    },
+    {
+      "name": "w080_020",
+      "label": "Hybrid 0.8 / 0.2",
+      "kind": "hybrid",
+      "macro_mrr": 0.9375,
+      "macro_ap": 0.7937202380952381,
+      "macro_precision_at_5": 0.6249999999999999,
+      "macro_recall_at_5": 0.7333333333333334,
+      "macro_ndcg_at_5": 0.8158214474671739,
+      "summary_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_hybrid_v1_w080_020/retrieval_suite_v1_bm25_bge_m3_w080_020_summary.json"
+    }
+  ],
+  "notes": [
+    "bge-m3 vector results used --embedding-input-max-chars 3200.",
+    "Future work: replace truncation with subchunk embeddings."
+  ]
+}

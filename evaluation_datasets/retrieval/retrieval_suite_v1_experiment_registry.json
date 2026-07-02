@@ -1,0 +1,225 @@
+{
+  "name": "ai4research-retrieval-suite-v1-experiment-registry",
+  "version": 1,
+  "suite": {
+    "manifest_path": "evaluation_datasets/retrieval/retrieval_suite_v1.json",
+    "case_count": 8,
+    "description": "Registry for BM25, bge-m3 vector, and BM25+bge-m3 hybrid retrieval experiments on retrieval_suite_v1."
+  },
+  "baselines": [
+    {
+      "name": "bm25",
+      "type": "lexical",
+      "status": "frozen",
+      "summary_path": "evaluation_datasets/retrieval/retrieval_suite_v1_bm25_baseline_summary.json",
+      "report_path": "evaluation_datasets/retrieval/retrieval_suite_v1_bm25_baseline_report.md",
+      "macro": {
+        "macro_mrr": 0.9375,
+        "macro_ap": 0.8052,
+        "macro_precision_at_5": 0.6,
+        "macro_recall_at_5": 0.7125,
+        "macro_ndcg_at_5": 0.8071
+      }
+    },
+    {
+      "name": "bge_m3_vector_truncated_3200",
+      "type": "vector",
+      "status": "historical_first_real_embedding_baseline",
+      "provider": "openai-compatible",
+      "model": "bge-m3",
+      "embedding_dimension": 1024,
+      "embedding_input_max_chars": 3200,
+      "summary_path": "evaluation_datasets/retrieval/bge_m3_vector_v1_truncated_3200/retrieval_suite_v1_bge_m3_truncated_3200_summary.json",
+      "report_path": "evaluation_datasets/retrieval/bge_m3_vector_v1_truncated_3200/bge_m3_vs_bm25_report.md",
+      "macro": {
+        "macro_mrr": 0.875,
+        "macro_ap": 0.7734,
+        "macro_precision_at_5": 0.675,
+        "macro_recall_at_5": 0.775,
+        "macro_ndcg_at_5": 0.7397
+      },
+      "limitations": [
+        "Uses temporary 3200-character truncation before embedding.",
+        "Superseded by bge_m3_vector_subchunk_3200 for future vector/hybrid experiments."
+      ]
+    },
+    {
+      "name": "bge_m3_vector_subchunk_3200",
+      "type": "vector",
+      "status": "preferred_real_embedding_baseline",
+      "provider": "openai-compatible",
+      "model": "bge-m3",
+      "embedding_dimension": 1024,
+      "subchunk_max_chars": 3200,
+      "subchunk_overlap_chars": 200,
+      "summary_path": "evaluation_datasets/retrieval/bge_m3_vector_v1_subchunk_3200/retrieval_suite_v1_bge_m3_subchunk_3200_summary.json",
+      "macro": {
+        "macro_mrr": 0.875,
+        "macro_ap": 0.7734,
+        "macro_precision_at_5": 0.675,
+        "macro_recall_at_5": 0.775,
+        "macro_ndcg_at_5": 0.7397
+      },
+      "notes": [
+        "Preferred over bge_m3_vector_truncated_3200 because it preserves overlong chunk tails via subchunk embeddings.",
+        "Metrics are currently identical to truncated_3200 on retrieval_suite_v1.",
+        "Embedding audit: 3099 embeddings across 63 papers; 24 subchunk embeddings from 8 source chunks across 6 papers; no read errors or duplicate embedding IDs."
+      ],
+      "report_path": "evaluation_datasets/retrieval/bge_m3_vector_v1_subchunk_3200/bge_m3_subchunk_3200_vs_truncated_3200_report.md",
+      "embedding_audit_path": "evaluation_datasets/retrieval/bge_m3_vector_v1_subchunk_3200/bge_m3_subchunk_3200_embedding_audit.json"
+    },
+    {
+      "name": "bm25_bge_m3_hybrid_w070_030",
+      "type": "hybrid",
+      "status": "historical_recommended_default",
+      "primary": "bm25",
+      "secondary": "bge-m3",
+      "primary_weight": 0.7,
+      "secondary_weight": 0.3,
+      "summary_path": "evaluation_datasets/retrieval/bm25_bge_m3_hybrid_v1_w070_030/retrieval_suite_v1_bm25_bge_m3_w070_030_summary.json",
+      "macro": {
+        "macro_mrr": 0.9375,
+        "macro_ap": 0.8228,
+        "macro_precision_at_5": 0.625,
+        "macro_recall_at_5": 0.7333,
+        "macro_ndcg_at_5": 0.8235
+      },
+      "notes": [
+        "Superseded by bm25_bge_m3_subchunk_hybrid_w070_030."
+      ]
+    },
+    {
+      "name": "bm25_bge_m3_subchunk_hybrid_w070_030",
+      "type": "hybrid",
+      "status": "recommended_default",
+      "primary": "bm25",
+      "secondary": "bge_m3_vector_subchunk_3200",
+      "primary_weight": 0.7,
+      "secondary_weight": 0.3,
+      "summary_path": "evaluation_datasets/retrieval/bm25_bge_m3_subchunk_hybrid_v1_w070_030/retrieval_suite_v1_bm25_bge_m3_subchunk_w070_030_summary.json",
+      "macro": {
+        "macro_mrr": 0.9375,
+        "macro_ap": 0.8228,
+        "macro_precision_at_5": 0.625,
+        "macro_recall_at_5": 0.7333,
+        "macro_ndcg_at_5": 0.8235
+      },
+      "notes": [
+        "Clean recommended hybrid baseline using bge_m3_vector_subchunk_3200.",
+        "Metrics match the earlier truncated_3200 hybrid but avoid tail truncation in vector embeddings."
+      ]
+    },
+    {
+      "name": "bge_m3_rerank_from_recommended_hybrid",
+      "type": "reranker",
+      "status": "experimental_not_recommended",
+      "input_baseline": "bm25_bge_m3_subchunk_hybrid_w070_030",
+      "provider": "openai-compatible",
+      "model": "bge-m3",
+      "candidate_paper_k": 10,
+      "subchunk_max_chars": 3200,
+      "subchunk_overlap_chars": 200,
+      "top_source_chunks_for_score": 3,
+      "rerank_batch_size": 16,
+      "summary_path": "evaluation_datasets/retrieval/bm25_bge_m3_subchunk_rerank_v1/retrieval_suite_v1_bge_m3_rerank_summary.json",
+      "report_path": "evaluation_datasets/retrieval/bm25_bge_m3_subchunk_rerank_v1/bge_m3_rerank_vs_hybrid_report.md",
+      "macro": {
+        "macro_mrr": 0.875,
+        "macro_ap": 0.7713,
+        "macro_precision_at_5": 0.675,
+        "macro_recall_at_5": 0.775,
+        "macro_ndcg_at_5": 0.7337
+      },
+      "notes": [
+        "Runs bge-m3 rerank over deduplicated hybrid evidence chunks.",
+        "Uses full subchunk coverage for overlong evidence chunks.",
+        "Improves P@5 and R@5 but is worse than the recommended hybrid on MRR, AP, and nDCG@5.",
+        "Must not replace bm25_bge_m3_subchunk_hybrid_w070_030 as the default strategy."
+      ]
+    }
+  ],
+  "weight_scan": {
+    "report_path": "evaluation_datasets/retrieval/bm25_bge_m3_hybrid_weight_scan_report.md",
+    "summary_path": "evaluation_datasets/retrieval/bm25_bge_m3_hybrid_weight_scan_summary.json",
+    "tested_weights": [
+      {
+        "bm25": 0.5,
+        "bge_m3": 0.5
+      },
+      {
+        "bm25": 0.6,
+        "bge_m3": 0.4
+      },
+      {
+        "bm25": 0.65,
+        "bge_m3": 0.35
+      },
+      {
+        "bm25": 0.7,
+        "bge_m3": 0.3
+      },
+      {
+        "bm25": 0.75,
+        "bge_m3": 0.25
+      },
+      {
+        "bm25": 0.8,
+        "bge_m3": 0.2
+      }
+    ],
+    "recommended": {
+      "bm25": 0.7,
+      "bge_m3": 0.3
+    }
+  },
+  "current_recommendation": {
+    "default_retrieval_strategy": "bm25_bge_m3_subchunk_hybrid_w070_030",
+    "reason": "Keeps BM25-level macro_MRR while improving macro_AP, P@5, R@5, and nDCG@5 on retrieval_suite_v1, using the preferred subchunk bge-m3 vector baseline.",
+    "notes": [
+      "This supersedes the earlier truncated_3200 hybrid recommendation.",
+      "The macro metrics are currently identical to the truncated_3200 hybrid, but the subchunk version preserves overlong chunk tails."
+    ]
+  },
+  "next_tasks": [
+    {
+      "name": "subchunk_embedding",
+      "priority": "high",
+      "description": "Subchunk embeddings implemented and validated on full 8-case bge-m3 suite. Overlong chunks are split into 3200+3200+... segments with source_chunk_id, subchunk_index, char_start, and char_end metadata.",
+      "status": "full_suite_validated",
+      "verified_by": [
+        {
+          "name": "token_hash_subchunk_smoke",
+          "path": "evaluation_datasets/retrieval/token_hash_subchunk_smoke/retrieval_suite_v1_token_hash_subchunk_smoke_summary.json"
+        },
+        {
+          "name": "bge_m3_subchunk_3200_smoke",
+          "path": "evaluation_datasets/retrieval/bge_m3_subchunk_3200_smoke/retrieval_suite_v1_bge_m3_subchunk_3200_smoke_summary.json"
+        },
+        {
+          "name": "bge_m3_vector_subchunk_3200_full_suite",
+          "path": "evaluation_datasets/retrieval/bge_m3_vector_v1_subchunk_3200/retrieval_suite_v1_bge_m3_subchunk_3200_summary.json"
+        }
+      ],
+      "remaining": [
+        "Rerun BM25+bge-m3 hybrid weight scan using bge_m3_vector_subchunk_3200 if replacing the truncated vector baseline formally.",
+        "Consider adding optional embedding_audit output for subchunk counts."
+      ]
+    },
+    {
+      "name": "reranker",
+      "priority": "medium",
+      "description": "bge-m3 reranker is implemented and validated on the full 8-case suite, but does not beat the recommended hybrid.",
+      "status": "full_suite_validated_experimental_not_recommended",
+      "remaining": [
+        "Only if prioritized, scan conservative fixed fusion weights between saved hybrid and rerank rankings.",
+        "Do not change the current default retrieval strategy without suite-level improvement."
+      ]
+    },
+    {
+      "name": "dynamic_weighting",
+      "priority": "medium",
+      "description": "Explore query-aware or case-aware BM25/vector weighting."
+    }
+  ],
+  "recommended_baseline_report_path": "evaluation_datasets/retrieval/retrieval_suite_v1_recommended_baseline_report.md"
+}

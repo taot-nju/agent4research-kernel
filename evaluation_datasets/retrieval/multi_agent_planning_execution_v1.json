@@ -1,0 +1,160 @@
+{
+  "name": "multi-agent-planning-execution-retrieval",
+  "version": "1",
+  "description": "评估系统能否找到使用 LLM 多智能体进行规划、任务拆解、角色分配、委派与执行的研究。",
+  "cases": [
+    {
+      "case_id": "multi-agent-planning-execution",
+      "query": "LLM multi-agent collaboration planning task decomposition role assignment delegation execution",
+      "description": "检索由规划者拆解任务、选择或分配不同 Agent，并通过协作工作流完成执行的 LLM 多智能体研究。",
+      "tags": [
+        "llm-multi-agent",
+        "planning",
+        "task-decomposition",
+        "role-assignment",
+        "delegation",
+        "execution"
+      ],
+      "candidate_paper_ids": [
+        "7b8c64311437786773b8cfea5f778e6acb61df5f",
+        "d6c1e7bd0581037564bdb6ed5b49d467ed7b65dd",
+        "0564c8e3329f1fc9e05a5383d3e04a4501c8e381",
+        "46b4a4700d14c6dad972ef3aa1b49aee9031c77f",
+        "fdfeddd29912d5d01ed1d7e51066bc6aa8f53a03",
+        "cd4eb31961a1eda5f2806c6d7d73e5c9de8b2a84",
+        "eaff210a81fdcc95d1a2497fb33ec4d15be8750c",
+        "1f7a5e29d2c963a48082db6797834324d9e8b8f2",
+        "b3fd873552f84a0b829b56db15b9b6ffaaa786da",
+        "36c0ccfb70e0eacc5e1d04f0bb085d237e6f65d6"
+      ],
+      "judgments": [
+        {
+          "paper_id": "7b8c64311437786773b8cfea5f778e6acb61df5f",
+          "relevance": 3,
+          "rationale": "直接实现分层规划、子任务拆解、并行角色分配、跨模型协作和最终执行。",
+          "evidence_page_ranges": [
+            [2, 4],
+            [25, 29]
+          ],
+          "relevant_chunk_ids": [
+            "775a72653f7a0d2ae3a4c7f4f6ca01cff19aa6fc5ca91a9c34bfb24ecd233276",
+            "cbaf16b155f768649d4b383a82fdd81aa517b358a5651a4cab756840fbfee9d7",
+            "fe4889a7b1ad093e85ed3bff03d09e858e7aec6d96516885780d364497d473d6",
+            "a52cf1a7827460d7861a236efcd802d15b8af449a972271d327facf176a096cd"
+          ]
+        },
+        {
+          "paper_id": "d6c1e7bd0581037564bdb6ed5b49d467ed7b65dd",
+          "relevance": 3,
+          "rationale": "根据任务选择相关 Agent，构造有向协作图，并通过消息传递与图聚合完成多智能体协作。",
+          "evidence_page_ranges": [
+            [1, 4]
+          ],
+          "relevant_chunk_ids": [
+            "14d64974d0e269cda9da87bbf53991bb6d7a15bf96d53f7458ef4405a61e0bb9",
+            "978d9ee1e4737041ce3461629e30d105ad4488146464609f5a2ccac75c72b274",
+            "7dd8ca42e07f7fb1c4b629da0c2df56546101500b7a771330d997a8da9f60109"
+          ]
+        },
+        {
+          "paper_id": "36c0ccfb70e0eacc5e1d04f0bb085d237e6f65d6",
+          "relevance": 3,
+          "rationale": "采用自动化多智能体 generate-verify-execute 流水线，不同 Agent 承担互补的生成、审查、验证和执行职责。",
+          "evidence_page_ranges": [
+            [6, 6],
+            [25, 25]
+          ],
+          "relevant_chunk_ids": [
+            "2b34f25f4826149a765951dd87635de4c4d9d5903b4125024d7adb95c6bbdab5",
+            "6e97960aeb5a51af9103b941f1cef836dd4cd349cf4e0f57a54bda4e59c2fd9e"
+          ]
+        },
+        {
+          "paper_id": "0564c8e3329f1fc9e05a5383d3e04a4501c8e381",
+          "relevance": 2,
+          "rationale": "研究多智能体动态协作和从人类反馈中持续调整策略，但不以 planner-worker 任务拆解为主要问题。",
+          "evidence_page_ranges": [
+            [17, 18]
+          ],
+          "relevant_chunk_ids": [
+            "fe2e0c63b1d0b077f15d2077c10acb4f9030d8ac3ee089d9f1c0e5a3654159db",
+            "2dccfbf718227706be52a9a47014dd4fad6d2e4ce4a8ff5cbbcd2aef177b0360"
+          ]
+        },
+        {
+          "paper_id": "fdfeddd29912d5d01ed1d7e51066bc6aa8f53a03",
+          "relevance": 2,
+          "rationale": "深入研究多步 Tool planning，但主要是单 Agent 工具规划，而非多智能体角色分工。",
+          "evidence_page_ranges": [
+            [1, 2],
+            [19, 20]
+          ],
+          "relevant_chunk_ids": [
+            "1d643da4c97ccb457c30313ddd7d8483a140273b3cb55745a176b6469d86518d",
+            "2f80be139bd46c62b62810b93b8320feb9e0bb56acd7805a15b088b74a15db3e"
+          ]
+        },
+        {
+          "paper_id": "eaff210a81fdcc95d1a2497fb33ec4d15be8750c",
+          "relevance": 2,
+          "rationale": "研究多智能体通信、manager-worker 和任务分解的理论边界，但不直接提出完整的规划执行系统。",
+          "evidence_page_ranges": [
+            [1, 2],
+            [4, 5],
+            [9, 10]
+          ],
+          "relevant_chunk_ids": [
+            "6f3be45592865d3c897c92072485920e0b10f41581d355e87413f5f9169e1f07",
+            "acd9062d2685120eaa4d8d2b9aefb8784b4b3dd130c6fc8bb6279d7c1df222fe",
+            "75924ea8b479275c6d6521d0c974e6994fc520e211738e592af8caaae0034657"
+          ]
+        },
+        {
+          "paper_id": "46b4a4700d14c6dad972ef3aa1b49aee9031c77f",
+          "relevance": 1,
+          "rationale": "研究多智能体执行后的日志分解与故障调试，不负责前期规划、任务拆解和角色分配。",
+          "evidence_page_ranges": [
+            [23, 24]
+          ],
+          "relevant_chunk_ids": [
+            "c3488fcd914a8c0524806642570a15eeb175bef65bf03f4e7aba47a0efea2714",
+            "2931d8b3ce001eac48e6508714682c0c6c75ec7328f223af4a7b581b97d1160a"
+          ]
+        },
+        {
+          "paper_id": "b3fd873552f84a0b829b56db15b9b6ffaaa786da",
+          "relevance": 1,
+          "rationale": "评估移动 Agent 在多路径、模糊和噪声任务下的执行能力，但不是多智能体协作规划方法。",
+          "evidence_page_ranges": [
+            [8, 9],
+            [18, 19]
+          ],
+          "relevant_chunk_ids": [
+            "ebc9c3b76ee2e3064aaee452de926b042f627ab54acab960c2754a67682ae954",
+            "46707e206714c8ac047325634b338385f4094ab3024431d99fecd8d764609555"
+          ]
+        },
+        {
+          "paper_id": "cd4eb31961a1eda5f2806c6d7d73e5c9de8b2a84",
+          "relevance": 1,
+          "rationale": "训练长程任务 LLM Agent，包含轨迹和执行策略，但不研究多智能体任务分工。",
+          "evidence_page_ranges": [
+            [3, 4],
+            [23, 24]
+          ],
+          "relevant_chunk_ids": [
+            "0c0169be6d16a4b0cac091231c7113cbe47a54f1ebbe8cd3a17d6a67833e9979",
+            "8bc5acd59c3182d2d0edffe1d12982d3490a9cba90418e602e59bc89db81f5f4"
+          ]
+        },
+        {
+          "paper_id": "1f7a5e29d2c963a48082db6797834324d9e8b8f2",
+          "relevance": 0,
+          "rationale": "属于传统离线多智能体强化学习，不研究 LLM planner-worker、角色编排或委派执行。",
+          "evidence_page_ranges": [],
+          "relevant_chunk_ids": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "name": "ai4research-retrieval-suite-bm25_bge_m3_subchunk_w070_030-summary",
+  "version": "1",
+  "suite_path": "/home/tao/ai4research/evaluation_datasets/retrieval/retrieval_suite_v1.json",
+  "output_dir": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_subchunk_hybrid_v1_w070_030",
+  "baseline": {
+    "name": "bm25_bge_m3_subchunk_w070_030",
+    "primary_name": "bm25",
+    "secondary_name": "bge-m3",
+    "primary_weight": 0.7,
+    "secondary_weight": 0.3,
+    "description": "Hybrid retrieval suite run."
+  },
+  "case_count": 8,
+  "cases": [
+    {
+      "case_id": "agent-memory-trajectory",
+      "query": "agent memory trajectory",
+      "relevant_count": 4,
+      "retrieved_count": 5,
+      "minimum_relevance": 1,
+      "reciprocal_rank": 1.0,
+      "average_precision": 0.8875,
+      "precision_at_5": 0.8,
+      "recall_at_5": 1.0,
+      "ndcg_at_5": 0.9017158033413439,
+      "search_output_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_subchunk_hybrid_v1_w070_030/agent-memory-trajectory_bm25_bge_m3_subchunk_w070_030_search_output.json",
+      "metrics_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_subchunk_hybrid_v1_w070_030/agent-memory-trajectory_bm25_bge_m3_subchunk_w070_030_metrics.json"
+    },
+    {
+      "case_id": "dialogue-trajectory-clustering",
+      "query": "LLM agent memory multi-turn dialogue trajectories trajectory clustering",
+      "relevant_count": 5,
+      "retrieved_count": 10,
+      "minimum_relevance": 2,
+      "reciprocal_rank": 1.0,
+      "average_precision": 0.7416666666666666,
+      "precision_at_5": 0.6,
+      "recall_at_5": 0.6,
+      "ndcg_at_5": 0.5732160188476014,
+      "search_output_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_subchunk_hybrid_v1_w070_030/dialogue-trajectory-clustering_bm25_bge_m3_subchunk_w070_030_search_output.json",
+      "metrics_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_subchunk_hybrid_v1_w070_030/dialogue-trajectory-clustering_bm25_bge_m3_subchunk_w070_030_metrics.json"
+    },
+    {
+      "case_id": "agent-trajectory-failure-detection",
+      "query": "LLM agent trajectory anomaly detection failure diagnosis outlier memory",
+      "relevant_count": 5,
+      "retrieved_count": 10,
+      "minimum_relevance": 2,
+      "reciprocal_rank": 0.5,
+      "average_precision": 0.6277777777777777,
+      "precision_at_5": 0.6,
+      "recall_at_5": 0.6,
+      "ndcg_at_5": 0.599159360249802,
+      "search_output_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_subchunk_hybrid_v1_w070_030/agent-trajectory-failure-detection_bm25_bge_m3_subchunk_w070_030_search_output.json",
+      "metrics_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_subchunk_hybrid_v1_w070_030/agent-trajectory-failure-detection_bm25_bge_m3_subchunk_w070_030_metrics.json"
+    },
+    {
+      "case_id": "multi-agent-planning-execution",
+      "query": "LLM multi-agent collaboration planning task decomposition role assignment delegation execution",
+      "relevant_count": 6,
+      "retrieved_count": 10,
+      "minimum_relevance": 2,
+      "reciprocal_rank": 1.0,
+      "average_precision": 0.7801587301587302,
+      "precision_at_5": 0.8,
+      "recall_at_5": 0.6666666666666666,
+      "ndcg_at_5": 0.8551760548460134,
+      "search_output_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_subchunk_hybrid_v1_w070_030/multi-agent-planning-execution_bm25_bge_m3_subchunk_w070_030_search_output.json",
+      "metrics_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_subchunk_hybrid_v1_w070_030/multi-agent-planning-execution_bm25_bge_m3_subchunk_w070_030_metrics.json"
+    },
+    {
+      "case_id": "multi-agent-failure-attribution",
+      "query": "LLM agent workflow root cause analysis error localization step-level evaluation failure attribution",
+      "relevant_count": 6,
+      "retrieved_count": 10,
+      "minimum_relevance": 2,
+      "reciprocal_rank": 1.0,
+      "average_precision": 0.7271825396825397,
+      "precision_at_5": 0.4,
+      "recall_at_5": 0.3333333333333333,
+      "ndcg_at_5": 0.8033774097761917,
+      "search_output_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_subchunk_hybrid_v1_w070_030/multi-agent-failure-attribution_bm25_bge_m3_subchunk_w070_030_search_output.json",
+      "metrics_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_subchunk_hybrid_v1_w070_030/multi-agent-failure-attribution_bm25_bge_m3_subchunk_w070_030_metrics.json"
+    },
+    {
+      "case_id": "question-storming",
+      "query": "LLM proactive question asking clarifying information seeking problem posing research ideation",
+      "relevant_count": 2,
+      "retrieved_count": 10,
+      "minimum_relevance": 2,
+      "reciprocal_rank": 1.0,
+      "average_precision": 1.0,
+      "precision_at_5": 0.4,
+      "recall_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "search_output_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_subchunk_hybrid_v1_w070_030/question-storming_bm25_bge_m3_subchunk_w070_030_search_output.json",
+      "metrics_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_subchunk_hybrid_v1_w070_030/question-storming_bm25_bge_m3_subchunk_w070_030_metrics.json"
+    },
+    {
+      "case_id": "recursive-inquiry-refinement",
+      "query": "LLM iterative critique reflection refinement dialogue self-improvement recursive revision",
+      "relevant_count": 6,
+      "retrieved_count": 10,
+      "minimum_relevance": 2,
+      "reciprocal_rank": 1.0,
+      "average_precision": 0.8178571428571427,
+      "precision_at_5": 0.8,
+      "recall_at_5": 0.6666666666666666,
+      "ndcg_at_5": 0.8551760548460134,
+      "search_output_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_subchunk_hybrid_v1_w070_030/recursive-inquiry-refinement_bm25_bge_m3_subchunk_w070_030_search_output.json",
+      "metrics_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_subchunk_hybrid_v1_w070_030/recursive-inquiry-refinement_bm25_bge_m3_subchunk_w070_030_metrics.json"
+    },
+    {
+      "case_id": "markup-color-highlighting",
+      "query": "LLM multi-turn dialogue HTML markup text highlighting prompt formatting instruction salience",
+      "relevant_count": 3,
+      "retrieved_count": 10,
+      "minimum_relevance": 2,
+      "reciprocal_rank": 1.0,
+      "average_precision": 1.0,
+      "precision_at_5": 0.6,
+      "recall_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "search_output_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_subchunk_hybrid_v1_w070_030/markup-color-highlighting_bm25_bge_m3_subchunk_w070_030_search_output.json",
+      "metrics_path": "/home/tao/ai4research/evaluation_datasets/retrieval/bm25_bge_m3_subchunk_hybrid_v1_w070_030/markup-color-highlighting_bm25_bge_m3_subchunk_w070_030_metrics.json"
+    }
+  ],
+  "macro": {
+    "macro_mrr": 0.9375,
+    "macro_ap": 0.8227678571428572,
+    "macro_precision_at_5": 0.6249999999999999,
+    "macro_recall_at_5": 0.7333333333333334,
+    "macro_ndcg_at_5": 0.8234775877383708
+  },
+  "weakest": {
+    "weakest_ap_case": "agent-trajectory-failure-detection",
+    "weakest_ndcg_at_5_case": "dialogue-trajectory-clustering"
+  },
+  "notes": [
+    "This summary is generated by run_hybrid_suite.py.",
+    "Hybrid result is generated by fuse_saved_paper_rankings.build_hybrid_result."
+  ]
+}

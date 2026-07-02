@@ -1,0 +1,129 @@
+{
+  "name": "markup-color-highlighting-retrieval",
+  "version": "1",
+  "description": "Evaluate retrieval for research on whether markup, highlighting, color, or formatting can increase instruction salience in multi-turn LLM interaction.",
+  "cases": [
+    {
+      "case_id": "markup-color-highlighting",
+      "query": "LLM multi-turn dialogue HTML markup text highlighting prompt formatting instruction salience",
+      "description": "Retrieve work studying structured markup, highlighting, visual emphasis, or related mechanisms for making important instructions more salient to language or multimodal models.",
+      "tags": [
+        "LLM",
+        "multi-turn-dialogue",
+        "HTML-markup",
+        "text-highlighting",
+        "color",
+        "prompt-formatting",
+        "instruction-salience"
+      ],
+      "candidate_paper_ids": [
+        "dd41fbbe1a193053e87cccccb8096b305d2e30d0",
+        "537489e99ab936e161f489c649223920736f5465",
+        "0044086e987288af71efd46c17a59b5a6d121a96",
+        "4a91e72e2cbc8d1c00674e5345ffb6a5dcc75cdc",
+        "61a55781f82826e3c5ff80d61e5087257eb0ff1e",
+        "02df27c11db2a31c034cc7eb4efbbd089cc24d97",
+        "6c9c382a7f2c9c3b984736da1e9c1ffe67dbfbc5",
+        "7b8c64311437786773b8cfea5f778e6acb61df5f",
+        "eaff210a81fdcc95d1a2497fb33ec4d15be8750c",
+        "09aa37c38177dc2ede3250c4f9ef491630c54f33"
+      ],
+      "judgments": [
+        {
+          "paper_id": "0044086e987288af71efd46c17a59b5a6d121a96",
+          "relevance": 2,
+          "relevance_label": "relevant",
+          "rationale": "Directly studies improving instruction following through optimized context construction, but does not test HTML color or visual highlighting.",
+          "evidence_page_ranges": [[8, 8]],
+          "relevant_chunk_ids": [
+            "fbec5438639b86f10be7a666eae94fcba723fd758b3c8d05823eb5505fde5828"
+          ]
+        },
+        {
+          "paper_id": "09aa37c38177dc2ede3250c4f9ef491630c54f33",
+          "relevance": 2,
+          "relevance_label": "relevant",
+          "rationale": "Separates and identifies instruction spans, including formatting constraints, to improve instruction following, but uses activation steering rather than markup or color.",
+          "evidence_page_ranges": [[27, 27]],
+          "relevant_chunk_ids": [
+            "13d21d70977447ce72114d280682fce20884717c8f19b15ff5f815d1bcb085a2"
+          ]
+        },
+        {
+          "paper_id": "dd41fbbe1a193053e87cccccb8096b305d2e30d0",
+          "relevance": 2,
+          "relevance_label": "relevant",
+          "rationale": "Optimizes combined textual and visual prompts for multimodal models, providing an adjacent mechanism for visual prompt emphasis, but does not study rendered HTML highlighting in dialogue.",
+          "evidence_page_ranges": [[17, 18]],
+          "relevant_chunk_ids": [
+            "0b6c7c9be7d0081b27d57bd7992d728bad24ce757fac9662daeb83069c1f8eb7"
+          ]
+        },
+        {
+          "paper_id": "02df27c11db2a31c034cc7eb4efbbd089cc24d97",
+          "relevance": 1,
+          "relevance_label": "marginally_relevant",
+          "rationale": "Studies style-controllable multimodal dialogue, but its emphasis is audio-visual dialogue generation rather than highlighting important textual instructions.",
+          "evidence_page_ranges": [[6, 7]],
+          "relevant_chunk_ids": [
+            "1679f3dc561c58158136c2db7ef9b91a469beb2cb9913efa9f4dbfc42efdefb9"
+          ]
+        },
+        {
+          "paper_id": "6c9c382a7f2c9c3b984736da1e9c1ffe67dbfbc5",
+          "relevance": 1,
+          "relevance_label": "marginally_relevant",
+          "rationale": "Studies structured instructions and noise in long-context processing, but not markup, color, or text highlighting.",
+          "evidence_page_ranges": [[13, 14]],
+          "relevant_chunk_ids": [
+            "9a2d12744ab10542751de54b41be04722dbc21c0a35782d94d6638078152a105"
+          ]
+        },
+        {
+          "paper_id": "61a55781f82826e3c5ff80d61e5087257eb0ff1e",
+          "relevance": 1,
+          "relevance_label": "marginally_relevant",
+          "rationale": "Optimizes generated instructions and meta-prompts, but does not investigate formatting-based or visual salience.",
+          "evidence_page_ranges": [[2, 3]],
+          "relevant_chunk_ids": [
+            "89db0b9226f8e85bb5a6492607e69b4c7d1e15db37cc29fc5d0df9626565d818"
+          ]
+        },
+        {
+          "paper_id": "4a91e72e2cbc8d1c00674e5345ffb6a5dcc75cdc",
+          "relevance": 1,
+          "relevance_label": "marginally_relevant",
+          "rationale": "Evaluates reasoning over dense multimodal contexts, but does not manipulate visual highlighting or markup to guide attention.",
+          "evidence_page_ranges": [[2, 2]],
+          "relevant_chunk_ids": [
+            "f5b8254ae94b33e62cb627b3327774192d32390c14fceac27dcfc413bf8f75b8"
+          ]
+        },
+        {
+          "paper_id": "537489e99ab936e161f489c649223920736f5465",
+          "relevance": 0,
+          "relevance_label": "irrelevant",
+          "rationale": "Focuses on detecting LLM-generated Wikipedia text rather than instruction salience or highlighting.",
+          "evidence_page_ranges": [],
+          "relevant_chunk_ids": []
+        },
+        {
+          "paper_id": "7b8c64311437786773b8cfea5f778e6acb61df5f",
+          "relevance": 0,
+          "relevance_label": "irrelevant",
+          "rationale": "Focuses on graph-based multi-agent routing rather than markup or visual emphasis.",
+          "evidence_page_ranges": [],
+          "relevant_chunk_ids": []
+        },
+        {
+          "paper_id": "eaff210a81fdcc95d1a2497fb33ec4d15be8750c",
+          "relevance": 0,
+          "relevance_label": "irrelevant",
+          "rationale": "Studies communication complexity in multi-agent reasoning rather than highlighted or visually formatted instructions.",
+          "evidence_page_ranges": [],
+          "relevant_chunk_ids": []
+        }
+      ]
+    }
+  ]
+}

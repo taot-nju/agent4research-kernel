@@ -1,0 +1,163 @@
+{
+  "name": "multi-agent-failure-attribution-retrieval",
+  "version": "1",
+  "description": "评估系统能否找到对 LLM Agent 工作流进行步骤级错误定位、失败归因和责任分配的研究。",
+  "cases": [
+    {
+      "case_id": "multi-agent-failure-attribution",
+      "query": "LLM agent workflow root cause analysis error localization step-level evaluation failure attribution",
+      "description": "检索能够从 Agent 执行轨迹中识别错误步骤、归因失败来源，并区分结果评价与过程级责任定位的论文。",
+      "tags": [
+        "llm-agent",
+        "multi-agent",
+        "credit-assignment",
+        "failure-attribution",
+        "error-localization",
+        "process-evaluation"
+      ],
+      "candidate_paper_ids": [
+        "46b4a4700d14c6dad972ef3aa1b49aee9031c77f",
+        "98afe86e39bd99612ab3797af32a164407f886e5",
+        "7b8c64311437786773b8cfea5f778e6acb61df5f",
+        "06b5e788992c9e71a9a08e34b94c06fd6f45e4fa",
+        "5077107ac7727922d87cfb01b943cb49fc1e01be",
+        "7a691cee03bd33355e2038a4485067042651a5c9",
+        "b9aef419551682d4142ac909164c2339ce33a103",
+        "de3afea18854f61464ccf632068cd224bd38f12e",
+        "2b4e5f2124e1a02c3d63d887cd58d3eaa496d8ae",
+        "cfd88b16c1088cdf14acf30e2861490f93612a91"
+      ],
+      "judgments": [
+        {
+          "paper_id": "46b4a4700d14c6dad972ef3aa1b49aee9031c77f",
+          "relevance": 3,
+          "rationale": "直接研究多智能体日志中的 failure attribution，并通过干预验证哪个 Agent、哪个步骤导致失败。",
+          "evidence_page_ranges": [
+            [2, 4],
+            [12, 16]
+          ],
+          "relevant_chunk_ids": [
+            "1d328e250f733031c99b662608d91c87fdf383361b32dcdfafe5796ac23a666f",
+            "3b21fef2241c95d1fff8f5c8409e16a1dce655d32112306cff619776926e4020",
+            "9ec1653e5c52e6260e37b7bf10091c5ff8a60ef37a2142d0977c4978b1611154"
+          ]
+        },
+        {
+          "paper_id": "cfd88b16c1088cdf14acf30e2861490f93612a91",
+          "relevance": 3,
+          "rationale": "直接在 Agent trajectory 中进行 span-level error localization，并区分错误 span、正常探索和噪声。",
+          "evidence_page_ranges": [
+            [1, 2],
+            [9, 10]
+          ],
+          "relevant_chunk_ids": [
+            "18cb696ad059a5e844ad82271dbbc9a5dd372a53102c34d0c0bd5e99caaa75ff",
+            "fbb7749bc1e7d0db32073dc21bdb12f4a4cf9e584f641478bc7a2cce62943ecc"
+          ]
+        },
+        {
+          "paper_id": "5077107ac7727922d87cfb01b943cb49fc1e01be",
+          "relevance": 2,
+          "rationale": "对 Agent traces 进行过程级专家标注和能力评估，可发现 grounding、recovery 等过程缺陷，但不是多智能体责任分配。",
+          "evidence_page_ranges": [
+            [1, 3],
+            [10, 11]
+          ],
+          "relevant_chunk_ids": [
+            "0ced34d9c8533c71bae6cce4a2219f0f77f861930a77e35ff20bd2b0cda3c7af",
+            "42cd77c51ad2902112b7621caff6f6faa1fe4d124ce2b4f6d77bfd694133f9a6"
+          ]
+        },
+        {
+          "paper_id": "7a691cee03bd33355e2038a4485067042651a5c9",
+          "relevance": 2,
+          "rationale": "从开放人类反馈归纳步骤级 Agent 指标并发现新的 failure modes，但不直接定位单次工作流中的责任步骤。",
+          "evidence_page_ranges": [
+            [2, 2],
+            [6, 9]
+          ],
+          "relevant_chunk_ids": [
+            "ba9e6a7d5de263b15bcb5ced9fb3c4bd10aade0f8295ba5be6baa4bf9db001aa",
+            "f3549d7cf86700364519ba1f0beaeb6cfa051783a81f3e77d2d1ace0eb7eda33",
+            "161f2cbd14bd57f41fbe44737927c4ea889505da9893e7edbad80154257cabc3"
+          ]
+        },
+        {
+          "paper_id": "98afe86e39bd99612ab3797af32a164407f886e5",
+          "relevance": 2,
+          "rationale": "记录完整步骤轨迹并标注 grounding error、隐私违规和自我纠正等行为，但重点是人类偏好评估。",
+          "evidence_page_ranges": [
+            [2, 4],
+            [8, 10]
+          ],
+          "relevant_chunk_ids": [
+            "10225d7c2075bdda574f62fcc9d2c0a1cc8dbfd97e2f33321599862e29933dc2",
+            "d8b69c7fe843547f346c791f35e0d541c175069ac6a83ddaf6fe6a6df951787d",
+            "cf6f7b47096592bbb2e009f6b1cc4002c07a19c58d58a1e857bb68322baf01bd"
+          ]
+        },
+        {
+          "paper_id": "2b4e5f2124e1a02c3d63d887cd58d3eaa496d8ae",
+          "relevance": 2,
+          "rationale": "检测 Agent 行为问题并提供反馈与回退，但不进行多智能体 credit assignment。",
+          "evidence_page_ranges": [
+            [20, 20],
+            [28, 28],
+            [31, 32]
+          ],
+          "relevant_chunk_ids": [
+            "87c07ca4db516fb58ac16dc629a610c1dc0973e6b01c9ef0b37159a30ca428d0",
+            "c752d3a033ce756516e9d9af9146ac7605fae403540640c57cfb501e4466b743",
+            "44c3fcb88184713074a4fd5bc6d6cdb71fdbe440344327b221be81bfca8106ed"
+          ]
+        },
+        {
+          "paper_id": "de3afea18854f61464ccf632068cd224bd38f12e",
+          "relevance": 1,
+          "rationale": "提供 Web Agent 工作流的 failure mode 分析，但主要是 benchmark，不提供精细责任定位机制。",
+          "evidence_page_ranges": [
+            [9, 9],
+            [17, 18]
+          ],
+          "relevant_chunk_ids": [
+            "62ddf4a4a0b22b2a0abf96b2a1c3e330fe4a6ce0c30c1bb79ddef5a7e64d80b9",
+            "389363501c3e1e1cdbc7a9b5f89bf5844c538b54325073ad07e467d841e230b4"
+          ]
+        },
+        {
+          "paper_id": "b9aef419551682d4142ac909164c2339ce33a103",
+          "relevance": 1,
+          "rationale": "使用 rubrics 评价 Deep Research Agent 的最终响应与能力类别，但不定位轨迹中的错误步骤。",
+          "evidence_page_ranges": [
+            [6, 8]
+          ],
+          "relevant_chunk_ids": [
+            "c4a10066df64e037d96ebf4b32be552c95a4398fd5989a061682d166dfb48adc",
+            "f3fd283816c20cfa6eeece393f0715932a15fa48bb6cf73ad033be98cf58c9b6",
+            "79a553c59b3b77b15e6d7dc61fb5e67c3227011f7b395c87e5a6560adefc7d45"
+          ]
+        },
+        {
+          "paper_id": "06b5e788992c9e71a9a08e34b94c06fd6f45e4fa",
+          "relevance": 1,
+          "rationale": "评价 Web 开发结果和 critique 质量，主要是结果级评估，不是 Agent 工作流中的错误归因。",
+          "evidence_page_ranges": [
+            [2, 2],
+            [6, 7]
+          ],
+          "relevant_chunk_ids": [
+            "68dcbbf880e27c9eb10aa2d953fada9d46e12f0f0d225f6a66f82021b99bf646",
+            "baed68b91d5cc4a8c4df431b41f81729bfff47ef63a9b0cef13d2b9a0ea6d08d"
+          ]
+        },
+        {
+          "paper_id": "7b8c64311437786773b8cfea5f778e6acb61df5f",
+          "relevance": 0,
+          "rationale": "研究多智能体规划与执行，但没有失败归因、错误定位或 credit assignment。",
+          "evidence_page_ranges": [],
+          "relevant_chunk_ids": []
+        }
+      ]
+    }
+  ]
+}
