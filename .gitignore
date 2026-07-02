@@ -50,3 +50,34 @@ Thumbs.db
 # Temporary files
 tmp/
 temp/
+
+# Retrieval experiment runtime outputs
+evaluation_datasets/retrieval/**/*_search_output.json
+evaluation_datasets/retrieval/**/*_metrics.json
+evaluation_datasets/retrieval/*_search_output.json
+evaluation_datasets/retrieval/*_metrics.json
+
+# Retrieval smoke / demo outputs
+evaluation_datasets/retrieval/*_smoke/
+evaluation_datasets/retrieval/*_demo/
+evaluation_datasets/retrieval/run_vector_suite_smoke/
+evaluation_datasets/retrieval/run_vector_suite_bge_m3_smoke/
+evaluation_datasets/retrieval/hybrid_candidate_mvp_smoke/
+evaluation_datasets/retrieval/topic_hybrid_bridge_smoke/
+
+# Local helper files
+README.md.bak_*
+eval_keep_list.txt
+
+# Retrieval weight-scan intermediate directories
+evaluation_datasets/retrieval/bm25_bge_m3_hybrid_v1/
+evaluation_datasets/retrieval/bm25_bge_m3_hybrid_v1_w060_040/
+evaluation_datasets/retrieval/bm25_bge_m3_hybrid_v1_w065_035/
+evaluation_datasets/retrieval/bm25_bge_m3_hybrid_v1_w070_030/
+evaluation_datasets/retrieval/bm25_bge_m3_hybrid_v1_w075_025/
+evaluation_datasets/retrieval/bm25_bge_m3_hybrid_v1_w080_020/
+
+# Small local demos
+evaluation_datasets/retrieval/embed_text_bge_m3_demo.json
+evaluation_datasets/retrieval/embed_text_token_hash_demo.json
+evaluation_datasets/retrieval/rerank_texts_bge_m3_demo.json
