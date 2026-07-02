@@ -152,7 +152,7 @@ def run_document_quality_checks(
 
         print("-" * 100)
         print(
-            f"[{summary.checked}/{limit}] "
+            f"[QUALITY {summary.checked}/{limit} checked_limit] "
             f"paper_id={paper_id}"
         )
         print(f"title={title}")

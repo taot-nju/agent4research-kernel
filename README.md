@@ -45,31 +45,37 @@ Research-agent data infrastructure
 
 ## 2. 当前已实现功能总览
 
-截至 2026-06-20，以下主链路已经跑通：
+截至当前版本，以下主链路已经跑通：
 
 ```text
 多源论文元数据采集
 → MongoDB 统一存储与去重融合
 → PDF 自动下载与资产校验
 → GLM-OCR 文档解析
-→ 基础质量检查
-→ 根据 Research Topic 召回论文
-→ 自动复用或补齐 PDF/OCR 资产
-→ 输出可用 Markdown 路径
+→ 文档质量检查
+→ Markdown chunk 资产化
+→ Topic 驱动的候选论文召回
+→ 候选集合内全文 BM25 检索
+→ BM25 / vector / hybrid / rerank 检索实验
+→ evidence dossier
+→ research brief
 ```
 
 | 能力 | 状态 | 说明 |
 |---|---|---|
-| 多源元数据采集 | 已完成 | arXiv、OpenReview、PMLR、ICML Official、AAAI Official、ACL Anthology |
+| 多源元数据采集 | 已完成 | arXiv、OpenReview、PMLR、ICML Official、AAAI Official、ACL Anthology 等多来源已接入 |
 | MongoDB Schema、索引、迁移 | 已完成 | 支持统一记录、去重、多源融合和历史 Schema 迁移 |
 | PDF 下载与管理 | 已完成 | 支持候选 URL 解析、校验、失败重试、租约、并发和幂等执行 |
-| GLM-OCR 接入 | MVP 已完成 | 通过 OpenAI-compatible 接口调用本地 vLLM 服务 |
-| 标准文档输出 | MVP 已完成 | 输出逐页 Markdown 和 `parse_report.json` |
-| 文档质量检查 | MVP 已完成 | 检查页数、页标记、字符数、标题和解析报告 |
-| Topic 到 Markdown 编排 | MVP 已完成 | 词法召回、无 PDF 候选补位、下载、OCR、质检、路径输出 |
-| 自动化测试 | 已建立 | 当前 7 项测试通过 |
-| chunk / embedding / 向量检索 | 未开始 | 下一阶段重点 |
-| 全文二次排序与答案生成 | 未开始 | 后续 Research Agent 能力 |
+| GLM-OCR 接入 | 已完成 | 通过 OpenAI-compatible 接口调用本地 vLLM 服务 |
+| 标准文档输出 | 已完成 | 输出逐页 Markdown 和 `parse_report.json` |
+| 文档质量检查 | 已完成 | 检查页数、页标记、字符数、标题和解析报告 |
+| Topic 到 Markdown 编排 | 已完成 | 词法召回、无 PDF 候选补位、下载、OCR、质检、路径输出 |
+| Markdown chunk 资产化 | 已完成 | 生成带页码、section、稳定 ID 的 chunk JSONL 与 manifest |
+| 候选集合内全文检索 | 已完成 | 在 Topic 候选集合内做 BM25 全文检索并返回论文级证据 |
+| 向量 / hybrid 检索 | 已完成 | 已建立 token-hash、bge-m3、hybrid 与 suite evaluation 基线 |
+| rerank 实验链路 | 实验完成 | 已完成 full-suite 验证，但当前不替代推荐 hybrid |
+| 证据底稿与研究简报 | MVP 已完成 | 已可生成 evidence dossier 与结构化 research brief |
+| 自动化测试 | 已建立 | 已覆盖 document / indexing / research 多层测试 |
 
 ---
 
@@ -2042,26 +2048,34 @@ python -m pytest -q
 
 ---
 
-当前项目已经从“多源论文元数据仓库”推进到“可按研究主题自动准备全文 Markdown 的 Research Agent 数据内核”。下一阶段的核心，是把这些文档转化为可引用、可检索、可排序的细粒度证据。
+当前项目已经从“多源论文元数据仓库”推进到“可按研究主题完成全文资产准备、候选集合内检索、证据输出与研究简报生成”的 Research Agent 数据与检索内核。下一阶段的核心，不再是从零开始补检索能力，而是把已完成能力重新收拢成一条清晰、可扩展、可持续演进的主线。
 
 ---
 
 ## 21. 当前项目状态总结
 
-截至 2026-06-20，项目已经从“多源论文元数据仓库”推进到“可按研究主题自动准备全文 Markdown 的 Research Agent 数据内核”。
+截至当前版本，项目已经从“多源论文元数据仓库”推进到“可按研究主题完成全文资产准备、chunk 资产化、候选集合内检索、证据输出与研究简报生成”的 Research Agent 数据与检索内核。
 
-真实验证已经覆盖 Topic 召回、无 PDF 候选补位、PDF 复用或下载、GLM-OCR、逐页 Markdown、解析报告、质量检查、幂等重复运行和多路径输出。当前完整测试基线为 `7 passed`。
+真实验证已经覆盖多源论文采集、PDF 复用或下载、GLM-OCR、逐页 Markdown、质量检查、chunk 资产化、候选集合内全文 BM25 检索、vector / hybrid 检索实验、evidence dossier 与 research brief。自动化测试也已经从早期基础测试扩展到 document / indexing / research 多层测试。
 
-下一阶段主线：
+当前推荐检索基线为：
 
 ```text
-章节感知 chunk
-→ 稳定 chunk ID 与页码证据
-→ embedding
-→ 向量索引
-→ 词法 + 语义混合检索
-→ rerank
-→ 带论文与页码引用的 Agent 输出
+BM25 0.7 + bge-m3 subchunk vector 0.3
 ```
 
-至此，数据采集、全文准备和 Topic 初筛已经连成一条可运行、可恢复、可扩展的 MVP 主链路。
+即：
+
+```text
+bm25_bge_m3_subchunk_hybrid_w070_030
+```
+
+接下来最重要的主线，不是继续无边界扩展新能力，而是补齐三类系统骨架：
+
+```text
+字段生命周期分层
+→ 新会议 / 新期刊接入适配
+→ 多阶段筛选规则正式化
+```
+
+至此，数据采集、全文资产化、chunk、Topic 检索、证据输出和研究简报已经连成一条可运行、可恢复、可扩展的 MVP 主链路。

@@ -1,0 +1,204 @@
+{
+  "topic": "LLM agent long-term memory consolidation retention forgetting",
+  "retriever_name": "mongo-lexical-topic-retriever",
+  "retriever_version": "2",
+  "candidates": [
+    {
+      "paper_id": "310c7455f4cb768645a3ac1b8e44af51c8394501",
+      "title": "Beyond a Million Tokens: Benchmarking and Enhancing Long-Term Memory in LLMs",
+      "accepted_by": "ICLR 2026",
+      "score": 47.0,
+      "matched_fields": [
+        "abstract",
+        "keywords",
+        "openreview_obj.keywords",
+        "openreview_obj.tldr",
+        "title"
+      ]
+    },
+    {
+      "paper_id": "7b8c64311437786773b8cfea5f778e6acb61df5f",
+      "title": "GraphPlanner: Graph Memory-Augmented Agentic Routing for Multi-Agent LLMs",
+      "accepted_by": "ICLR 2026",
+      "score": 40.875,
+      "matched_fields": [
+        "abstract",
+        "keywords",
+        "openreview_obj.keywords",
+        "openreview_obj.tldr",
+        "title"
+      ]
+    },
+    {
+      "paper_id": "e8452a87398ee3eacb8dd1b622e2eb91a2da3f26",
+      "title": "Cache What Lasts: Token Retention for Memory-Bounded KV Cache in LLMs",
+      "accepted_by": "ICLR 2026",
+      "score": 37.625,
+      "matched_fields": [
+        "abstract",
+        "keywords",
+        "openreview_obj.keywords",
+        "openreview_obj.tldr",
+        "title"
+      ]
+    },
+    {
+      "paper_id": "cd4eb31961a1eda5f2806c6d7d73e5c9de8b2a84",
+      "title": "AgentGym-RL: An Open-Source Framework to Train LLM Agents for Long-Horizon Decision Making via Multi-Turn RL",
+      "accepted_by": "ICLR 2026",
+      "score": 35.875,
+      "matched_fields": [
+        "abstract",
+        "keywords",
+        "openreview_obj.keywords",
+        "openreview_obj.tldr",
+        "title"
+      ]
+    },
+    {
+      "paper_id": "b8560728b739f3788fc9639b1db240b201f71f0e",
+      "title": "RMAAT: Astrocyte-Inspired Memory Compression and Replay for Efficient Long-Context Transformers",
+      "accepted_by": "ICLR 2026",
+      "score": 31.5,
+      "matched_fields": [
+        "abstract",
+        "keywords",
+        "openreview_obj.keywords",
+        "openreview_obj.tldr",
+        "title"
+      ]
+    }
+  ],
+  "refreshed_pdf_tasks": 0,
+  "document_availability_changes": 2,
+  "pdf_summary": {
+    "claimed": 2,
+    "success": 2,
+    "failed": 0,
+    "unavailable": 0,
+    "ownership_lost": 0,
+    "other": 0
+  },
+  "document_summary": {
+    "claimed": 2,
+    "success": 2,
+    "failed": 0,
+    "ownership_lost": 0,
+    "other": 0
+  },
+  "quality_summary": {
+    "checked": 2,
+    "passed": 2,
+    "warning": 0,
+    "rejected": 0,
+    "update_failed": 0,
+    "errors": 0
+  },
+  "outcomes": [
+    {
+      "rank": 1,
+      "paper_id": "310c7455f4cb768645a3ac1b8e44af51c8394501",
+      "title": "Beyond a Million Tokens: Benchmarking and Enhancing Long-Term Memory in LLMs",
+      "accepted_by": "ICLR 2026",
+      "retrieval_score": 47.0,
+      "matched_fields": [
+        "abstract",
+        "keywords",
+        "openreview_obj.keywords",
+        "openreview_obj.tldr",
+        "title"
+      ],
+      "pdf_status": "success",
+      "document_status": "success",
+      "quality_status": "passed",
+      "markdown_relative_path": "documents/31/0c/310c7455f4cb768645a3ac1b8e44af51c8394501/document.md",
+      "markdown_absolute_path": "/data/ai4research_assets/documents/31/0c/310c7455f4cb768645a3ac1b8e44af51c8394501/document.md",
+      "ready": true,
+      "error": ""
+    },
+    {
+      "rank": 2,
+      "paper_id": "7b8c64311437786773b8cfea5f778e6acb61df5f",
+      "title": "GraphPlanner: Graph Memory-Augmented Agentic Routing for Multi-Agent LLMs",
+      "accepted_by": "ICLR 2026",
+      "retrieval_score": 40.875,
+      "matched_fields": [
+        "abstract",
+        "keywords",
+        "openreview_obj.keywords",
+        "openreview_obj.tldr",
+        "title"
+      ],
+      "pdf_status": "success",
+      "document_status": "success",
+      "quality_status": "passed",
+      "markdown_relative_path": "documents/7b/8c/7b8c64311437786773b8cfea5f778e6acb61df5f/document.md",
+      "markdown_absolute_path": "/data/ai4research_assets/documents/7b/8c/7b8c64311437786773b8cfea5f778e6acb61df5f/document.md",
+      "ready": true,
+      "error": ""
+    },
+    {
+      "rank": 3,
+      "paper_id": "e8452a87398ee3eacb8dd1b622e2eb91a2da3f26",
+      "title": "Cache What Lasts: Token Retention for Memory-Bounded KV Cache in LLMs",
+      "accepted_by": "ICLR 2026",
+      "retrieval_score": 37.625,
+      "matched_fields": [
+        "abstract",
+        "keywords",
+        "openreview_obj.keywords",
+        "openreview_obj.tldr",
+        "title"
+      ],
+      "pdf_status": "success",
+      "document_status": "success",
+      "quality_status": "passed",
+      "markdown_relative_path": "documents/e8/45/e8452a87398ee3eacb8dd1b622e2eb91a2da3f26/document.md",
+      "markdown_absolute_path": "/data/ai4research_assets/documents/e8/45/e8452a87398ee3eacb8dd1b622e2eb91a2da3f26/document.md",
+      "ready": true,
+      "error": ""
+    },
+    {
+      "rank": 4,
+      "paper_id": "cd4eb31961a1eda5f2806c6d7d73e5c9de8b2a84",
+      "title": "AgentGym-RL: An Open-Source Framework to Train LLM Agents for Long-Horizon Decision Making via Multi-Turn RL",
+      "accepted_by": "ICLR 2026",
+      "retrieval_score": 35.875,
+      "matched_fields": [
+        "abstract",
+        "keywords",
+        "openreview_obj.keywords",
+        "openreview_obj.tldr",
+        "title"
+      ],
+      "pdf_status": "success",
+      "document_status": "success",
+      "quality_status": "passed",
+      "markdown_relative_path": "documents/cd/4e/cd4eb31961a1eda5f2806c6d7d73e5c9de8b2a84/document.md",
+      "markdown_absolute_path": "/data/ai4research_assets/documents/cd/4e/cd4eb31961a1eda5f2806c6d7d73e5c9de8b2a84/document.md",
+      "ready": true,
+      "error": ""
+    },
+    {
+      "rank": 5,
+      "paper_id": "b8560728b739f3788fc9639b1db240b201f71f0e",
+      "title": "RMAAT: Astrocyte-Inspired Memory Compression and Replay for Efficient Long-Context Transformers",
+      "accepted_by": "ICLR 2026",
+      "retrieval_score": 31.5,
+      "matched_fields": [
+        "abstract",
+        "keywords",
+        "openreview_obj.keywords",
+        "openreview_obj.tldr",
+        "title"
+      ],
+      "pdf_status": "success",
+      "document_status": "success",
+      "quality_status": "passed",
+      "markdown_relative_path": "documents/b8/56/b8560728b739f3788fc9639b1db240b201f71f0e/document.md",
+      "markdown_absolute_path": "/data/ai4research_assets/documents/b8/56/b8560728b739f3788fc9639b1db240b201f71f0e/document.md",
+      "ready": true,
+      "error": ""
+    }
+  ]
+}

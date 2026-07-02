@@ -137,7 +137,7 @@ def run_document_parse_tasks(
 
         print("-" * 100)
         print(
-            f"[{summary.claimed}/{limit}] "
+            f"[OCR {summary.claimed}/{limit} claimed_limit] "
             f"paper_id={paper_id}"
         )
         print(f"title={title}")
